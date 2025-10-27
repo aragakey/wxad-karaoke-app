@@ -1,63 +1,113 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Music, Mic } from 'lucide-react';
+import ChainRecorder from '@/components/ChainRecorder';
+
+// 默认歌曲配置
+const DEFAULT_SONG = {
+  id: 'default-song',
+  title: 'Monday (feat. Lionman)',
+  artist: '窦靖童',
+  backingTrackUrl: '/assets/monday-ins.mp3',
+};
 
 export default function Home() {
+  const [userId, setUserId] = useState<string>('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // 从登录系统获取用户ID
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (userId.trim()) {
+      localStorage.setItem('userId', userId);
+      setIsLoggedIn(true);
+    }
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Music className="w-12 h-12 text-purple-600" />
+            </div>
+            <CardTitle className="text-2xl">合唱 Karaoke</CardTitle>
+            <CardDescription>多人一起合唱歌曲</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="userId">用户ID</Label>
+                <Input
+                  id="userId"
+                  placeholder="输入你的用户ID"
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                  className="text-base"
+                />
+              </div>
+              <Button type="submit" className="w-full" size="lg">
+                进入
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-black/50 backdrop-blur border-b border-purple-500/20">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h1 className="flex items-center text-base md:text-2xl font-bold text-white">wxad des
+              <svg className="relative bottom-0.5 -mx-1.5 md:-mx-2.5 size-5 md:size-7" viewBox="0 0 512 512"><path d="M256.4 32c-35.1.1-65.8 23.2-76.8 59.3-5.6 18.5-3.5 44.8-1.2 54.5 2.3 9.7 7.3 19.9 13.2 28.3 2.8 4.2 6.7 7.4 11.2 9.2.6.3 1.3.5 2 .8 3.3 1.1 6.5 2.2 10.1 3.1 11.8 3 27.1 4.7 41.1 4.8h2v-.1c14-.1 27.3-1.7 39.1-4.8 3.6-.9 6.9-2 10.2-3.1.7-.2 1.3-.5 1.9-.8 4.5-1.8 8.4-5 11.2-9.2 5.9-8.4 10.8-18.6 13.2-28.3 2.3-9.7 4.4-36-1.2-54.5-11-36-40.8-59.1-76-59.2z" fill="currentColor" /><path d="M295.3 201.1c-.4 0-.7 0-1.1.1-.6.1-1.3.3-1.9.4-2 .4-4.1.8-6.1 1.2-9.2 1.5-18.9 2.3-29 2.4-10.1-.1-22.3-.9-31-2.4-2.1-.4-4.2-.8-6.2-1.2-.6-.1-1.3-.3-1.9-.4-.4-.1-.8-.1-1.1-.1-6.1 0-11 5.3-11.2 11.9.1.8.2 1.6.2 2.4 4.8 67.2 16.8 240.7 18.2 252 0 0 2.8 12.7 32.1 12.6 29.2.1 32.1-12.6 32.1-12.6 1.4-11.3 13.4-184.8 18.2-252 0-.8.1-1.6.2-2.4-.5-6.6-5.4-11.9-11.5-11.9zM266 281.7c0 6-4.5 10.9-10 10.9s-10-4.9-10-10.9V249c0-6 4.5-10.9 10-10.9s10 4.9 10 10.9v32.7z" fill="currentColor" /></svg>
+              gn karaoke</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-400">用户: {userId}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                localStorage.removeItem('userId');
+                setIsLoggedIn(false);
+                setUserId('');
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              退出
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 py-8 pb-24">
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <Mic className="w-6 h-6" />
+              {DEFAULT_SONG.title}
+            </h2>
+            <p className="text-gray-400">{DEFAULT_SONG.artist}</p>
+          </div>
+          <ChainRecorder song={DEFAULT_SONG} userId={userId} />
         </div>
       </main>
     </div>

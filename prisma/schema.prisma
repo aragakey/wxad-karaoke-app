@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Song {
+  id        String     @id @default(cuid())
+  title     String
+  artist    String
+  duration  Int        // in seconds
+  backingTrackUrl String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  parts     Part[]
+  recordings Recording[]
+}
+
+model Part {
+  id        String     @id @default(cuid())
+  songId    String
+  song      Song       @relation(fields: [songId], references: [id], onDelete: Cascade)
+  name      String     // e.g., "Soprano", "Alto", "Tenor", "Bass"
+  order     Int        // order in the song
+  startTime Float      // in seconds
+  endTime   Float      // in seconds
+  
+  recordings Recording[]
+  
+  @@unique([songId, order])
+}
+
+model Recording {
+  id        String     @id @default(cuid())
+  songId    String
+  song      Song       @relation(fields: [songId], references: [id], onDelete: Cascade)
+  partId    String
+  part      Part       @relation(fields: [partId], references: [id], onDelete: Cascade)
+  userId    String     // from login context
+  audioUrl  String     // URL to stored audio file
+  duration  Int        // in seconds
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
