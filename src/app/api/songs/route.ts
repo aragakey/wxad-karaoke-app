@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
 
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads', 'backing-tracks');
-
-// Mock database - in production, use Prisma
+// Mock database - in memory storage
 const songs: any[] = [];
 
 export async function GET() {
   try {
-    // In production, fetch from database using Prisma
     return NextResponse.json(songs);
   } catch (error) {
     console.error('Failed to fetch songs:', error);
@@ -35,16 +29,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure upload directory exists
-    if (!existsSync(UPLOAD_DIR)) {
-      await mkdir(UPLOAD_DIR, { recursive: true });
-    }
-
-    // Save backing track
+    // Convert backing track to base64
     const buffer = await backingTrack.arrayBuffer();
-    const filename = `${Date.now()}-${backingTrack.name}`;
-    const filepath = join(UPLOAD_DIR, filename);
-    await writeFile(filepath, Buffer.from(buffer));
+    const base64Audio = Buffer.from(buffer).toString('base64');
+    const mimeType = backingTrack.type || 'audio/mpeg';
 
     // Create song object
     const song = {
@@ -52,7 +40,7 @@ export async function POST(request: NextRequest) {
       title,
       artist,
       duration,
-      backingTrackUrl: `/uploads/backing-tracks/${filename}`,
+      backingTrackUrl: `data:${mimeType};base64,${base64Audio}`,
       parts: parts.map((part: any, index: number) => ({
         id: `part-${Date.now()}-${index}`,
         name: part.name,
