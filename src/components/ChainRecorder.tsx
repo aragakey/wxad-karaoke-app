@@ -455,7 +455,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       {/* 总体进度 */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
-          <CardTitle className="text-white">接龙进度</CardTitle>
+          <CardTitle className="text-white">录音进度</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -475,11 +475,12 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
             <div className="bg-slate-900/50 p-4 rounded-lg">
               <p className="text-gray-400 text-sm mb-2">你的部分</p>
               <div className="space-y-1">
-                {userSegments.map((_, idx) => {
-                  const userRecorded = recordings.some(r => r.userId === userId && r.startTime === getTimeRangeByLineIds(userSegments[idx].startLineId, userSegments[idx].endLineId).startTime);
+                {userSegments.map((segment, idx) => {
+                  const timeRange = getTimeRangeByLineIds(segment.startLineId, segment.endLineId);
+                  const userRecorded = recordings.some(r => r.userId === userId && r.startTime === timeRange.startTime);
                   return (
                     <p key={idx} className={`text-sm font-semibold ${userRecorded ? 'text-green-400' : 'text-gray-300'}`}>
-                      {userRecorded ? '✓' : '○'} 第 {idx + 1} 部分
+                      {userRecorded ? '✓' : '○'} 第 {idx + 1} 部分：第 {segment.startLineId}-{segment.endLineId} 句
                     </p>
                   );
                 })}

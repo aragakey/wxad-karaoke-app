@@ -81,7 +81,7 @@ export interface UserLyricAssignment {
 
 export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   { 
-    userId: 'aragakey', 
+    userId: 'wxad', 
     segments: [
       { startLineId: 1, endLineId: 6 },      // 第一部分：第 1-6 句
       { startLineId: 56, endLineId: 61 },    // 第二部分：最后 6 句
