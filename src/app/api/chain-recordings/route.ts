@@ -57,6 +57,9 @@ export async function GET(request: NextRequest) {
   try {
     const songId = request.nextUrl.searchParams.get('songId');
 
+    console.log('Fetching recordings for songId:', songId);
+    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+    
     const recordings = await prisma.chainRecording.findMany({
       where: songId ? { songId } : undefined,
       orderBy: { startTime: 'asc' },
@@ -70,6 +73,8 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    console.log('Found recordings:', recordings.length);
+
     // 添加 audioUrl
     const result = recordings.map(r => ({
       ...r,
@@ -79,8 +84,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('Failed to fetch chain recordings:', error);
+    console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
     return NextResponse.json(
-      { error: 'Failed to fetch chain recordings' },
+      { 
+        error: 'Failed to fetch chain recordings',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
