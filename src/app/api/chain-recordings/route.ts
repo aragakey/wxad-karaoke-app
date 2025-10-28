@@ -1,13 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
-
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads', 'chain-recordings');
-
-// Mock database - in production, use Prisma
-// 使用 Map 来存储每个用户的录音，这样可以轻松替换
-export const chainRecordings = new Map<string, any>();
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,36 +17,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure upload directory exists
-    if (!existsSync(UPLOAD_DIR)) {
-      await mkdir(UPLOAD_DIR, { recursive: true });
-    }
-
-    // Save recording - 保留原始文件扩展名以支持多种格式
+    // 将文件转换为 base64 存储在数据库中
     const buffer = await file.arrayBuffer();
-    const fileExtension = file.name.split('.').pop() || 'webm';
-    const filename = `${songId}-${userId}-${Date.now()}.${fileExtension}`;
-    const filepath = join(UPLOAD_DIR, filename);
-    await writeFile(filepath, Buffer.from(buffer));
+    const base64 = Buffer.from(buffer).toString('base64');
+    const mimeType = file.type || 'audio/webm';
 
-    // Create recording object - 使用唯一的 ID，包含时间范围以支持同一用户的多个部分
-    const startTimeNum = parseFloat(startTime);
-    const endTimeNum = parseFloat(endTime);
-    const recordingId = `${songId}-${userId}-${startTime}-${endTime}-${Date.now()}`;
-    const recording = {
-      id: recordingId,
-      songId,
-      userId,
-      startTime: startTimeNum,
-      endTime: endTimeNum,
-      audioUrl: `/uploads/chain-recordings/${filename}`,
-      createdAt: new Date().toISOString(),
-    };
+    // 创建数据库记录
+    const recording = await prisma.chainRecording.create({
+      data: {
+        songId,
+        userId,
+        startTime: parseFloat(startTime),
+        endTime: parseFloat(endTime),
+        audioData: base64,
+        mimeType,
+        fileName: file.name,
+      },
+    });
 
-    chainRecordings.set(recordingId, recording);
-    console.log('Saved recording:', recordingId, 'Total recordings:', chainRecordings.size);
-
-    return NextResponse.json(recording, { status: 201 });
+    return NextResponse.json({
+      id: recording.id,
+      songId: recording.songId,
+      userId: recording.userId,
+      startTime: recording.startTime,
+      endTime: recording.endTime,
+      audioUrl: `/api/chain-recordings/${recording.id}/audio`,
+      createdAt: recording.createdAt.toISOString(),
+    }, { status: 201 });
   } catch (error) {
     console.error('Failed to upload chain recording:', error);
     return NextResponse.json(
@@ -68,29 +57,24 @@ export async function GET(request: NextRequest) {
   try {
     const songId = request.nextUrl.searchParams.get('songId');
 
-    let filtered = Array.from(chainRecordings.values());
-
-    if (songId) {
-      filtered = filtered.filter((r) => r.songId === songId);
-    }
-
-    // 只保留每个用户每个时间段的最新录音
-    const latestRecordings = new Map<string, any>();
-    
-    filtered.forEach((recording) => {
-      const key = `${recording.userId}-${recording.startTime}-${recording.endTime}`;
-      const existing = latestRecordings.get(key);
-      
-      // 如果没有或者新的更新，就替换
-      if (!existing || new Date(recording.createdAt) > new Date(existing.createdAt)) {
-        latestRecordings.set(key, recording);
-      }
+    const recordings = await prisma.chainRecording.findMany({
+      where: songId ? { songId } : undefined,
+      orderBy: { startTime: 'asc' },
+      select: {
+        id: true,
+        songId: true,
+        userId: true,
+        startTime: true,
+        endTime: true,
+        createdAt: true,
+      },
     });
 
-    const result = Array.from(latestRecordings.values());
-
-    // Sort by startTime
-    result.sort((a, b) => a.startTime - b.startTime);
+    // 添加 audioUrl
+    const result = recordings.map(r => ({
+      ...r,
+      audioUrl: `/api/chain-recordings/${r.id}/audio`,
+    }));
 
     return NextResponse.json(result);
   } catch (error) {
@@ -114,28 +98,17 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    let deletedCount = 0;
-    const keysToDelete: string[] = [];
+    const where: any = { userId };
+    if (songId) {
+      where.songId = songId;
+    }
 
-    // Find all recordings to delete
-    chainRecordings.forEach((recording, key) => {
-      if (recording.userId === userId) {
-        if (!songId || recording.songId === songId) {
-          keysToDelete.push(key);
-          deletedCount++;
-        }
-      }
-    });
-
-    // Delete the recordings
-    keysToDelete.forEach(key => {
-      chainRecordings.delete(key);
-    });
+    const result = await prisma.chainRecording.deleteMany({ where });
 
     return NextResponse.json({
       success: true,
-      deletedCount,
-      message: `Deleted ${deletedCount} recording(s) for user ${userId}`
+      deletedCount: result.count,
+      message: `Deleted ${result.count} recording(s) for user ${userId}`
     });
   } catch (error) {
     console.error('Failed to delete chain recordings:', error);

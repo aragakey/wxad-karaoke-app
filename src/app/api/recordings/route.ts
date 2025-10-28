@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
-
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads', 'recordings');
-
-// Mock database - in production, use Prisma
-const recordings: any[] = [];
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,32 +16,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure upload directory exists
-    if (!existsSync(UPLOAD_DIR)) {
-      await mkdir(UPLOAD_DIR, { recursive: true });
-    }
-
-    // Save recording - 保留原始文件扩展名以支持多种格式
+    // 将文件转换为 base64 存储在数据库中
     const buffer = await file.arrayBuffer();
-    const fileExtension = file.name.split('.').pop() || 'webm';
-    const filename = `${Date.now()}-${userId}.${fileExtension}`;
-    const filepath = join(UPLOAD_DIR, filename);
-    await writeFile(filepath, Buffer.from(buffer));
+    const base64 = Buffer.from(buffer).toString('base64');
+    const mimeType = file.type || 'audio/webm';
 
-    // Create recording object
-    const recording = {
-      id: `recording-${Date.now()}`,
-      songId,
-      partId,
-      userId,
-      audioUrl: `/uploads/recordings/${filename}`,
-      duration: Math.round(file.size / 16000), // Rough estimate
-      createdAt: new Date(),
-    };
+    // 创建数据库记录
+    const recording = await prisma.recording.create({
+      data: {
+        songId,
+        partId,
+        userId,
+        audioUrl: `/api/recordings/${Date.now()}/audio`,
+        duration: Math.round(file.size / 16000),
+      },
+    });
 
-    recordings.push(recording);
+    // 存储音频数据到单独的表（可选）
+    await prisma.recordingAudio.create({
+      data: {
+        recordingId: recording.id,
+        audioData: base64,
+        mimeType,
+        fileName: file.name,
+      },
+    });
 
-    return NextResponse.json(recording, { status: 201 });
+    return NextResponse.json({
+      id: recording.id,
+      songId: recording.songId,
+      partId: recording.partId,
+      userId: recording.userId,
+      audioUrl: `/api/recordings/${recording.id}/audio`,
+      duration: recording.duration,
+      createdAt: recording.createdAt.toISOString(),
+    }, { status: 201 });
   } catch (error) {
     console.error('Failed to upload recording:', error);
     return NextResponse.json(
@@ -63,17 +65,30 @@ export async function GET(request: NextRequest) {
     const songId = request.nextUrl.searchParams.get('songId');
     const partId = request.nextUrl.searchParams.get('partId');
 
-    let filtered = recordings;
+    const where: any = {};
+    if (songId) where.songId = songId;
+    if (partId) where.partId = partId;
 
-    if (songId) {
-      filtered = filtered.filter((r) => r.songId === songId);
-    }
+    const recordings = await prisma.recording.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        songId: true,
+        partId: true,
+        userId: true,
+        duration: true,
+        createdAt: true,
+      },
+    });
 
-    if (partId) {
-      filtered = filtered.filter((r) => r.partId === partId);
-    }
+    // 添加 audioUrl
+    const result = recordings.map(r => ({
+      ...r,
+      audioUrl: `/api/recordings/${r.id}/audio`,
+    }));
 
-    return NextResponse.json(filtered);
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Failed to fetch recordings:', error);
     return NextResponse.json(
@@ -95,29 +110,15 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const initialLength = recordings.length;
-    
-    // Filter out recordings to delete
-    const filtered = recordings.filter((recording) => {
-      if (recording.userId !== userId) {
-        return true;
-      }
-      if (songId && recording.songId !== songId) {
-        return true;
-      }
-      return false;
-    });
+    const where: any = { userId };
+    if (songId) where.songId = songId;
 
-    const deletedCount = initialLength - filtered.length;
-    
-    // Replace the array contents
-    recordings.length = 0;
-    recordings.push(...filtered);
+    const result = await prisma.recording.deleteMany({ where });
 
     return NextResponse.json({
       success: true,
-      deletedCount,
-      message: `Deleted ${deletedCount} recording(s) for user ${userId}`
+      deletedCount: result.count,
+      message: `Deleted ${result.count} recording(s) for user ${userId}`
     });
   } catch (error) {
     console.error('Failed to delete recordings:', error);
