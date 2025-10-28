@@ -57,7 +57,7 @@ export default function Home() {
                 <Label htmlFor="userId">用户ID</Label>
                 <Input
                   id="userId"
-                  placeholder="输入企微全名，小写"
+                  placeholder="输入企微全名，小写；测试: aragakey"
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
                   className="text-base"
