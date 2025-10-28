@@ -7,6 +7,7 @@ import { Mic, Square, Upload, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import KaraokeDisplay from './KaraokeDisplay';
 import { getUserLyricSegments, getTimeRangeByLineIds, getLyricsByRange } from '@/lib/lyrics';
+import { getBestAudioMimeType, getFileExtension, convertBlobToWav, isIOS } from '@/lib/audioConverter';
 
 interface Recording {
   id: string;
@@ -44,9 +45,17 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
   const [rerecordingSegments, setRerecordingSegments] = useState<Set<number>>(new Set());
   const [playingWithBackingId, setPlayingWithBackingId] = useState<string | null>(null);
   const [backingPlaybackTime, setBackingPlaybackTime] = useState(0);
+  const [audioMimeType, setAudioMimeType] = useState<string>('audio/webm');
 
   // 获取用户的歌词段落
   const userSegments = getUserLyricSegments(userId);
+
+  // 初始化时获取最佳的音频 MIME 类型
+  useEffect(() => {
+    const mimeType = getBestAudioMimeType();
+    setAudioMimeType(mimeType);
+    console.log('Initialized audio MIME type:', mimeType, 'iOS:', isIOS());
+  }, []);
 
   // 为每个段落维护独立的录音状态
   const [segmentStates, setSegmentStates] = useState<Map<number, SegmentRecordingState>>(
@@ -162,7 +171,14 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       const { startTime, endTime } = timeRange;
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      
+      // 使用最佳的 MIME 类型创建 MediaRecorder
+      const options: MediaRecorderOptions = {};
+      if (audioMimeType && MediaRecorder.isTypeSupported(audioMimeType)) {
+        options.mimeType = audioMimeType;
+      }
+      
+      const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRefs.current.set(segmentIndex, mediaRecorder);
       audioChunksRefs.current.set(segmentIndex, []);
 
@@ -172,9 +188,19 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
         audioChunksRefs.current.set(segmentIndex, chunks);
       };
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const chunks = audioChunksRefs.current.get(segmentIndex) || [];
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        let audioBlob = new Blob(chunks, { type: audioMimeType });
+        
+        // iOS 上如果是 WebM，尝试转换为 WAV
+        if (isIOS() && audioMimeType.includes('webm')) {
+          try {
+            audioBlob = await convertBlobToWav(audioBlob);
+          } catch (error) {
+            console.error('Failed to convert to WAV, using original blob:', error);
+          }
+        }
+        
         const url = URL.createObjectURL(audioBlob);
 
         setSegmentStates(prev => {
@@ -278,7 +304,8 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append('file', state.recordedAudio, 'recording.webm');
+      const fileExtension = getFileExtension(audioMimeType);
+      formData.append('file', state.recordedAudio, `recording.${fileExtension}`);
       formData.append('songId', song.id);
       formData.append('userId', userId);
       formData.append('startTime', String(startTime));

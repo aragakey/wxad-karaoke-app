@@ -28,9 +28,10 @@ export async function POST(request: NextRequest) {
       await mkdir(UPLOAD_DIR, { recursive: true });
     }
 
-    // Save recording
+    // Save recording - 保留原始文件扩展名以支持多种格式
     const buffer = await file.arrayBuffer();
-    const filename = `${Date.now()}-${userId}-${file.name}`;
+    const fileExtension = file.name.split('.').pop() || 'webm';
+    const filename = `${Date.now()}-${userId}.${fileExtension}`;
     const filepath = join(UPLOAD_DIR, filename);
     await writeFile(filepath, Buffer.from(buffer));
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Play, Pause, Mic, Square, Upload, Volume2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { getBestAudioMimeType, getFileExtension, convertBlobToWav, isIOS } from '@/lib/audioConverter';
 
 interface Part {
   id: string;
@@ -36,6 +37,7 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
   const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [backingVolume, setBackingVolume] = useState(0.5);
+  const [audioMimeType, setAudioMimeType] = useState<string>('audio/webm');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -48,10 +50,23 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
     }
   }, [backingVolume]);
 
+  // 初始化时获取最佳的音频 MIME 类型
+  useEffect(() => {
+    const mimeType = getBestAudioMimeType();
+    setAudioMimeType(mimeType);
+  }, []);
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      
+      // 使用最佳的 MIME 类型创建 MediaRecorder
+      const options: MediaRecorderOptions = {};
+      if (audioMimeType && MediaRecorder.isTypeSupported(audioMimeType)) {
+        options.mimeType = audioMimeType;
+      }
+      
+      const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -59,8 +74,18 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
         audioChunksRef.current.push(event.data);
       };
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      mediaRecorder.onstop = async () => {
+        let audioBlob = new Blob(audioChunksRef.current, { type: audioMimeType });
+        
+        // iOS 上如果是 WebM，尝试转换为 WAV
+        if (isIOS() && audioMimeType.includes('webm')) {
+          try {
+            audioBlob = await convertBlobToWav(audioBlob);
+          } catch (error) {
+            console.error('Failed to convert to WAV, using original blob:', error);
+          }
+        }
+        
         setRecordedAudio(audioBlob);
         stream.getTracks().forEach((track) => track.stop());
       };
@@ -109,7 +134,8 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append('file', recordedAudio, 'recording.webm');
+      const fileExtension = getFileExtension(audioMimeType);
+      formData.append('file', recordedAudio, `recording.${fileExtension}`);
       formData.append('songId', song.id);
       formData.append('partId', selectedPart.id);
       formData.append('userId', userId);
