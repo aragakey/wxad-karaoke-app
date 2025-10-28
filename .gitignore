@@ -38,7 +38,7 @@ yarn-error.log*
 public/uploads/
 
 # Prisma
-prisma/migrations/
+# prisma/migrations/  # 需要提交迁移文件到 git
 
 # Build
 dist/
