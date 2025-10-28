@@ -461,7 +461,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-slate-900/50 p-4 rounded-lg">
               <p className="text-gray-400 text-sm">已录音人数</p>
-              <p className="text-3xl font-bold text-purple-400">{recordings.length}</p>
+              <p className="text-3xl font-bold text-purple-400">{Array.from(new Set(recordings.map(r => r.userId))).length}</p>
               {recordings.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {Array.from(new Set(recordings.map(r => r.userId))).map((uid) => (
