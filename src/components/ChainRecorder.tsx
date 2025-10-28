@@ -228,36 +228,83 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
         return newMap;
       });
 
-      // 播放伴奏
+      // 等待音频加载完成后再播放伴奏
       if (backingAudioRef.current) {
-        backingAudioRef.current.currentTime = startTime;
-        backingAudioRef.current.play().catch((error) => {
-          console.error('Failed to play backing track:', error);
-        });
+        const audio = backingAudioRef.current;
+        
+        // 设置播放位置
+        audio.currentTime = startTime;
+        
+        // 等待音频可以播放
+        const startPlayback = async () => {
+          try {
+            // 等待音频加载到可以播放的状态
+            if (audio.readyState < 3) { // HAVE_FUTURE_DATA
+              await new Promise<void>((resolve) => {
+                const onCanPlay = () => {
+                  audio.removeEventListener('canplay', onCanPlay);
+                  resolve();
+                };
+                audio.addEventListener('canplay', onCanPlay);
+                
+                // 设置超时，避免无限等待
+                setTimeout(() => {
+                  audio.removeEventListener('canplay', onCanPlay);
+                  resolve();
+                }, 2000);
+              });
+            }
+            
+            // 开始播放
+            await audio.play();
+            
+            // 确认播放真正开始后，再启动计时器
+            const onPlaying = () => {
+              audio.removeEventListener('playing', onPlaying);
+              
+              // 录音计时
+              const updateTimer = setInterval(() => {
+                const currentTime = backingAudioRef.current?.currentTime || 0;
+
+                if (currentTime >= endTime) {
+                  stopRecording(segmentIndex);
+                } else {
+                  setSegmentStates(prev => {
+                    const newMap = new Map(prev);
+                    const state = newMap.get(segmentIndex) || { isRecording: false, recordedAudio: null, recordedAudioUrl: null, recordingTime: 0, currentBackingTime: 0 };
+                    newMap.set(segmentIndex, {
+                      ...state,
+                      recordingTime: Math.floor((currentTime - startTime) * 10) / 10,
+                      currentBackingTime: currentTime,
+                    });
+                    return newMap;
+                  });
+                }
+              }, 50);
+
+              recordingIntervalRefs.current.set(segmentIndex, updateTimer);
+              toast.success(`开始录制第 ${segmentIndex + 1} 部分`);
+            };
+            
+            audio.addEventListener('playing', onPlaying);
+            
+            // 设置超时，避免无限等待 playing 事件
+            setTimeout(() => {
+              audio.removeEventListener('playing', onPlaying);
+              // 如果超时仍未触发，手动启动计时器
+              if (!recordingIntervalRefs.current.has(segmentIndex)) {
+                onPlaying();
+              }
+            }, 1000);
+            
+          } catch (error) {
+            console.error('Failed to play backing track:', error);
+            toast.error('播放伴奏失败，请重试');
+          }
+        };
+        
+        startPlayback();
       }
-
-      // 录音计时
-      const updateTimer = setInterval(() => {
-        const currentTime = backingAudioRef.current?.currentTime || 0;
-
-        if (currentTime >= endTime) {
-          stopRecording(segmentIndex);
-        } else {
-          setSegmentStates(prev => {
-            const newMap = new Map(prev);
-            const state = newMap.get(segmentIndex) || { isRecording: false, recordedAudio: null, recordedAudioUrl: null, recordingTime: 0, currentBackingTime: 0 };
-            newMap.set(segmentIndex, {
-              ...state,
-              recordingTime: Math.floor((currentTime - startTime) * 10) / 10,
-              currentBackingTime: currentTime,
-            });
-            return newMap;
-          });
-        }
-      }, 50);
-
-      recordingIntervalRefs.current.set(segmentIndex, updateTimer);
-      toast.success(`开始录制第 ${segmentIndex + 1} 部分`);
     } catch (error) {
       console.error('Failed to start recording:', error);
       toast.error('无法访问麦克风');
