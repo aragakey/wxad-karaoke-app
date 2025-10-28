@@ -482,9 +482,13 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
         const timeRange = getTimeRangeByLineIds(segment.startLineId, segment.endLineId);
         const { startTime, endTime } = timeRange;
         const state = segmentStates.get(segmentIndex);
-        const segmentRecordings = recordings.filter(r =>
+        const allSegmentRecordings = recordings.filter(r =>
           r.startTime === startTime && r.endTime === endTime
         );
+        // 只显示最新的一个录音
+        const segmentRecordings = allSegmentRecordings.length > 0 
+          ? [allSegmentRecordings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]]
+          : [];
         const userRecorded = segmentRecordings.some(r => r.userId === userId);
         const isRerecording = rerecordingSegments.has(segmentIndex);
 
