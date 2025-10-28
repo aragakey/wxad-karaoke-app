@@ -64,16 +64,18 @@ model RecordingAudio {
 }
 
 model ChainRecording {
-  id        String     @id @default(cuid())
-  songId    String
-  userId    String
-  startTime Float      // in seconds
-  endTime   Float      // in seconds
-  audioData String     // base64 encoded audio
-  mimeType  String     // audio/webm, audio/mp4, etc.
-  fileName  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id          String     @id @default(cuid())
+  songId      String
+  userId      String
+  startTime   Float      // in seconds
+  endTime     Float      // in seconds
+  startLineId Int?       // 开始句子 ID
+  endLineId   Int?       // 结束句子 ID
+  audioData   String     // base64 encoded audio
+  mimeType    String     // audio/webm, audio/mp4, etc.
+  fileName    String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   
   @@index([songId])
   @@index([userId])

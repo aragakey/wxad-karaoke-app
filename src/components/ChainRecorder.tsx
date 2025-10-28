@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Mic, Square, Upload, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import KaraokeDisplay from './KaraokeDisplay';
-import { getUserLyricSegments, getTimeRangeByLineIds, getLyricsByRange } from '@/lib/lyrics';
+import { getUserLyricSegments, getTimeRangeByLineIds, getLyricsByRange, commonSegments } from '@/lib/lyrics';
 import { getBestAudioMimeType, getFileExtension, convertBlobToWav, isIOS } from '@/lib/audioConverter';
 
 interface Recording {
@@ -15,6 +15,8 @@ interface Recording {
   audioUrl: string;
   startTime: number;
   endTime: number;
+  startLineId?: number;
+  endLineId?: number;
   createdAt: string;
 }
 
@@ -171,13 +173,13 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       const { startTime, endTime } = timeRange;
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
+
       // 使用最佳的 MIME 类型创建 MediaRecorder
       const options: MediaRecorderOptions = {};
       if (audioMimeType && MediaRecorder.isTypeSupported(audioMimeType)) {
         options.mimeType = audioMimeType;
       }
-      
+
       const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRefs.current.set(segmentIndex, mediaRecorder);
       audioChunksRefs.current.set(segmentIndex, []);
@@ -191,7 +193,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       mediaRecorder.onstop = async () => {
         const chunks = audioChunksRefs.current.get(segmentIndex) || [];
         let audioBlob = new Blob(chunks, { type: audioMimeType });
-        
+
         // iOS 上如果是 WebM，尝试转换为 WAV
         if (isIOS() && audioMimeType.includes('webm')) {
           try {
@@ -200,7 +202,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
             console.error('Failed to convert to WAV, using original blob:', error);
           }
         }
-        
+
         const url = URL.createObjectURL(audioBlob);
 
         setSegmentStates(prev => {
@@ -307,7 +309,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       const oldRecordings = recordings.filter(r =>
         r.startTime === startTime && r.endTime === endTime && r.userId === userId
       );
-      
+
       for (const oldRecording of oldRecordings) {
         await fetch(`/api/chain-recordings/${oldRecording.id}`, {
           method: 'DELETE',
@@ -322,6 +324,8 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       formData.append('userId', userId);
       formData.append('startTime', String(startTime));
       formData.append('endTime', String(endTime));
+      formData.append('startLineId', String(segment.startLineId));
+      formData.append('endLineId', String(segment.endLineId));
 
       const response = await fetch('/api/chain-recordings', {
         method: 'POST',
@@ -394,7 +398,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
     }
   };
 
-  const togglePlayWithBacking = (recordingId: string) => {
+  const togglePlayWithBacking = async (recordingId: string) => {
     const recording = recordings.find((r) => r.id === recordingId);
     if (!recording || !backingAudioRef.current) return;
 
@@ -413,21 +417,49 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
         backingAudioRef.current.pause();
       }
 
-      // 开始播放
-      const audio = playingAudioRefs.current.get(recordingId);
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch((error) => {
-          console.error('Failed to play recording:', error);
-        });
-      }
-
-      backingAudioRef.current.currentTime = recording.startTime;
-      backingAudioRef.current.play().catch((error) => {
-        console.error('Failed to play backing track:', error);
-      });
-
+      // 设置播放状态
       setPlayingWithBackingId(recordingId);
+
+      const audio = playingAudioRefs.current.get(recordingId);
+      const backing = backingAudioRef.current;
+      
+      if (!audio || !backing) return;
+
+      // 确保两个音频都加载完成
+      const ensureLoaded = (audioElement: HTMLAudioElement) => {
+        return new Promise<void>((resolve) => {
+          if (audioElement.readyState >= 3) { // HAVE_FUTURE_DATA
+            resolve();
+          } else {
+            const onCanPlay = () => {
+              audioElement.removeEventListener('canplay', onCanPlay);
+              resolve();
+            };
+            audioElement.addEventListener('canplay', onCanPlay);
+          }
+        });
+      };
+
+      try {
+        // 预设播放位置
+        audio.currentTime = 0;
+        backing.currentTime = recording.startTime;
+
+        // 等待两个音频都加载完成
+        await Promise.all([
+          ensureLoaded(audio),
+          ensureLoaded(backing)
+        ]);
+
+        // 同时播放
+        await Promise.all([
+          audio.play(),
+          backing.play()
+        ]);
+      } catch (error) {
+        console.error('Failed to play with backing:', error);
+        setPlayingWithBackingId(null);
+      }
     }
   };
 
@@ -476,8 +508,17 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
               <p className="text-gray-400 text-sm mb-2">你的部分</p>
               <div className="space-y-1">
                 {userSegments.map((segment, idx) => {
-                  const timeRange = getTimeRangeByLineIds(segment.startLineId, segment.endLineId);
-                  const userRecorded = recordings.some(r => r.userId === userId && r.startTime === timeRange.startTime);
+                  const userRecorded = recordings.some(r => {
+                    if (r.userId !== userId) return false;
+                    // 优先使用 lineId 判断（新录音）
+                    if (r.startLineId !== undefined && r.endLineId !== undefined) {
+                      return r.startLineId === segment.startLineId && r.endLineId === segment.endLineId;
+                    }
+                    // 兼容旧录音，使用时间判断
+                    const timeRange = getTimeRangeByLineIds(segment.startLineId, segment.endLineId);
+                    return Math.abs(r.startTime - timeRange.startTime) < 0.01 &&
+                           Math.abs(r.endTime - timeRange.endTime) < 0.01;
+                  });
                   return (
                     <p key={idx} className={`text-sm font-semibold ${userRecorded ? 'text-green-400' : 'text-gray-300'}`}>
                       {userRecorded ? '✓' : '○'} 第 {idx + 1} 部分：第 {segment.startLineId}-{segment.endLineId} 句
@@ -495,18 +536,25 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
         const timeRange = getTimeRangeByLineIds(segment.startLineId, segment.endLineId);
         const { startTime, endTime } = timeRange;
         const state = segmentStates.get(segmentIndex);
-        const allSegmentRecordings = recordings.filter(r =>
-          r.startTime === startTime && r.endTime === endTime
-        );
+        const allSegmentRecordings = recordings.filter(r => {
+          // 只显示当前用户的录音
+          if (r.userId !== userId) return false;
+          // 优先使用 lineId 判断（新录音）
+          if (r.startLineId !== undefined && r.endLineId !== undefined) {
+            return r.startLineId === segment.startLineId && r.endLineId === segment.endLineId;
+          }
+          // 兼容旧录音，使用时间判断
+          return Math.abs(r.startTime - startTime) < 0.01 && Math.abs(r.endTime - endTime) < 0.01;
+        });
         // 只显示最新的一个录音
-        const segmentRecordings = allSegmentRecordings.length > 0 
+        const segmentRecordings = allSegmentRecordings.length > 0
           ? [allSegmentRecordings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]]
           : [];
         const userRecorded = segmentRecordings.some(r => r.userId === userId);
         const isRerecording = rerecordingSegments.has(segmentIndex);
 
         return (
-          <div key={segmentIndex} className="space-y-4">
+          <div key={`${userId}-${segmentIndex}`} className="space-y-4">
             {/* 录音控制卡片 - 未录制或正在重新录制时显示 */}
             {(!userRecorded || isRerecording) && (
               <Card className="bg-slate-800/50 border-slate-700">
@@ -521,7 +569,9 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                 <CardContent className="space-y-4">
                   {/* 歌词显示 */}
                   <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30 p-4 rounded-lg">
-                    <p className="text-gray-400 text-sm mb-3">你要唱的歌词</p>
+                    <p className="text-gray-400 text-sm mb-3">
+                      你要唱的歌词（{commonSegments.some(cs => cs.startLineId === segment.startLineId && cs.endLineId === segment.endLineId) ? '可以选择唱和声哦～' : '大声点哦～'}）
+                    </p>
                     <div className="space-y-1">
                       {getLyricsByRange(segment.startLineId, segment.endLineId).map((lyric) => (
                         <div key={lyric.id} className="flex gap-2 text-sm">

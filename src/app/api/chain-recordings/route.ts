@@ -9,6 +9,8 @@ export async function POST(request: NextRequest) {
     const userId = formData.get('userId') as string;
     const startTime = formData.get('startTime') as string;
     const endTime = formData.get('endTime') as string;
+    const startLineId = formData.get('startLineId') as string;
+    const endLineId = formData.get('endLineId') as string;
 
     if (!file || !songId || !userId || !startTime || !endTime) {
       return NextResponse.json(
@@ -29,6 +31,8 @@ export async function POST(request: NextRequest) {
         userId,
         startTime: parseFloat(startTime),
         endTime: parseFloat(endTime),
+        startLineId: startLineId ? parseInt(startLineId) : null,
+        endLineId: endLineId ? parseInt(endLineId) : null,
         audioData: base64,
         mimeType,
         fileName: file.name,
@@ -41,6 +45,8 @@ export async function POST(request: NextRequest) {
       userId: recording.userId,
       startTime: recording.startTime,
       endTime: recording.endTime,
+      startLineId: recording.startLineId,
+      endLineId: recording.endLineId,
       audioUrl: `/api/chain-recordings/${recording.id}/audio`,
       createdAt: recording.createdAt.toISOString(),
     }, { status: 201 });
@@ -69,6 +75,8 @@ export async function GET(request: NextRequest) {
         userId: true,
         startTime: true,
         endTime: true,
+        startLineId: true,
+        endLineId: true,
         createdAt: true,
       },
     });

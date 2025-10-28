@@ -10,7 +10,7 @@ export const MONDAY_LYRICS: LyricLine[] = [
   { id: 3, time: 57.81, text: '听着mp3' },
   { id: 4, time: 59.25, text: '播范特西' },
   { id: 5, time: 60.66, text: '我又想到你' },
-  { id: 6, time: 62.95, text: '想到你无法抗拒 stuck in my dreaming baby' },
+  { id: 6, time: 62.95, text: '想到你無法抗拒 stuck in my dreaming baby' },
   { id: 7, time: 68.51, text: '金色的天空' },
   { id: 8, time: 71.20, text: '云朵片片划过' },
   { id: 9, time: 73.85, text: '好像心里头' },
@@ -23,7 +23,7 @@ export const MONDAY_LYRICS: LyricLine[] = [
   { id: 16, time: 86.13, text: '在一起' },
   { id: 17, time: 88.81, text: 'Monday' },
   { id: 18, time: 90.12, text: '和你走到Sunday' },
-  { id: 19, time: 92.54, text: '坐最后一班电车 和你看日落' },
+  { id: 19, time: 92.54, text: '坐最后一班电车' },
   { id: 20, time: 96.56, text: '和你看日落' },
   { id: 21, time: 98.35, text: '我们去喝橘子汽水' },
   { id: 22, time: 101.10, text: '我想和你浪漫约会' },
@@ -33,8 +33,8 @@ export const MONDAY_LYRICS: LyricLine[] = [
   { id: 26, time: 141.25, text: '听着声音' },
   { id: 27, time: 142.51, text: '画着这旋律' },
   { id: 28, time: 143.87, text: '脑海里都是你' },
-  { id: 29, time: 146.47, text: '一个 sunny day 那个场景很电影' },
-  { id: 30, time: 148.89, text: '在山路驾着跑车 画面全部八毫米' },
+  { id: 29, time: 146.47, text: '一個 sunny day 嗰場景好電影' },
+  { id: 30, time: 148.89, text: '喺山路駛著跑車 畫面全部八毫米' },
   { id: 31, time: 151.96, text: '海边的晚风' },
   { id: 32, time: 154.56, text: '有你的温柔' },
   { id: 33, time: 157.23, text: '好像心里头' },
@@ -46,20 +46,20 @@ export const MONDAY_LYRICS: LyricLine[] = [
   { id: 39, time: 168.68, text: '微风' },
   { id: 40, time: 169.59, text: '陪伴你' },
   { id: 41, time: 171.47, text: 'rap：' },
-  { id: 42, time: 173.29, text: '我们第一次见面' },
-  { id: 43, time: 175.95, text: '我这人一直很腼腆' },
-  { id: 44, time: 178.22, text: '你问我为什么戴头盔' },
-  { id: 45, time: 180.10, text: '可能我是super Mario住在临街的' },
-  { id: 46, time: 183.67, text: '总之不会是你的真命天子' },
-  { id: 47, time: 186.28, text: '哪儿有那么好的事儿' },
-  { id: 48, time: 188.92, text: '孙悟空都没我调皮' },
-  { id: 49, time: 190.91, text: '来的花花世界 我都不知道为什么' },
-  { id: 50, time: 194.13, text: '开车兜兜转转' },
-  { id: 51, time: 196.64, text: '和你又来到了海边' },
-  { id: 52, time: 199.20, text: '带你看日落城市' },
-  { id: 53, time: 200.97, text: '山顶的夜景好像霓虹灯闪烁' },
-  { id: 54, time: 204.46, text: '很高兴初次见面' },
-  { id: 55, time: 206.96, text: '遇到你时光倒转' },
+  { id: 42, time: 173.29, text: '我哋第一次見面' },
+  { id: 43, time: 175.95, text: '我份人不嬲都靦腆' },
+  { id: 44, time: 178.22, text: '你問我點解要戴頭盔' },
+  { id: 45, time: 180.10, text: '可能我喺 Super Mario 住喺臨街' },
+  { id: 46, time: 183.67, text: '總之唔會喺你真命天子' },
+  { id: 47, time: 186.28, text: '邊有咁好嘅事' },
+  { id: 48, time: 188.92, text: '孫悟空都冇我咁曳' },
+  { id: 49, time: 190.91, text: '嚟到花花世界 我都唔知點解' },
+  { id: 50, time: 194.13, text: '揸車兜兜轉轉' },
+  { id: 51, time: 196.64, text: '同你又嚟到海邊' },
+  { id: 52, time: 199.20, text: '帶你睇日落城市' },
+  { id: 53, time: 200.97, text: '山頂啲夜景好似霓虹燈閃' },
+  { id: 54, time: 204.46, text: '好高興初次見面' },
+  { id: 55, time: 206.96, text: '遇到你時光倒轉' },
   { id: 56, time: 213.96, text: 'Monday' },
   { id: 57, time: 215.20, text: '和你走到Sunday' },
   { id: 58, time: 217.70, text: '坐最后一班电车' },
@@ -79,14 +79,102 @@ export interface UserLyricAssignment {
   segments: LyricSegment[];
 }
 
+export const commonSegments: LyricSegment[] = [
+  { startLineId: 56, endLineId: 61 },    // 第二部分：最后 6 句
+];
+
 export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
-  { 
-    userId: 'wxad', 
+  {
+    userId: 'kelsonluo',
     segments: [
-      { startLineId: 1, endLineId: 6 },      // 第一部分：第 1-6 句
-      { startLineId: 56, endLineId: 61 },    // 第二部分：最后 6 句
+      { startLineId: 1, endLineId: 2 },
+      ...commonSegments,
     ]
   },
+  {
+    userId: 'dindinding',
+    segments: [
+      { startLineId: 3, endLineId: 6 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'czshi',
+    segments: [
+      { startLineId: 7, endLineId: 10 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'yitaohou',
+    segments: [
+      { startLineId: 11, endLineId: 16 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'eugenecao',
+    segments: [
+      { startLineId: 17, endLineId: 22 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'jihaoxie',
+    segments: [
+      { startLineId: 23, endLineId: 25 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'yijiejiang',
+    segments: [
+      { startLineId: 26, endLineId: 28 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'hsinuuzhang',
+    segments: [
+      { startLineId: 29, endLineId: 30 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'iveszheng',
+    segments: [
+      { startLineId: 31, endLineId: 34 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'lianxunwang',
+    segments: [
+      { startLineId: 35, endLineId: 40 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'tooyangliu',
+    segments: [
+      { startLineId: 42, endLineId: 45 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'renqiangxie',
+    segments: [
+      { startLineId: 46, endLineId: 49 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'zakhongyang',
+    segments: [
+      { startLineId: 50, endLineId: 55 },
+      ...commonSegments,
+    ]
+  }
 ];
 
 export function getUserLyricSegments(userId: string) {
@@ -124,11 +212,11 @@ export function getNextLyric(currentTime: number): LyricLine | null {
 export function getTimeRangeByLineIds(startLineId: number, endLineId: number) {
   const startLine = MONDAY_LYRICS.find(l => l.id === startLineId);
   const endLine = MONDAY_LYRICS.find(l => l.id === endLineId);
-  
+
   if (!startLine || !endLine) {
     return { startTime: 0, endTime: 20 };
   }
-  
+
   return {
     startTime: startLine.time - 5,  // 录音前空余 5 秒
     endTime: endLine.time + 10,     // 录音后空余 10 秒（确保完整录制长句子）
