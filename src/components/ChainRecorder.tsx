@@ -643,15 +643,17 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                           key={recording.id}
                           className="bg-slate-900/50 p-3 rounded-lg space-y-2"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold flex-shrink-0">
-                              {index + 1}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-white font-semibold">{recording.userId}</p>
-                              <p className="text-gray-400 text-sm">
-                                {recording.startTime.toFixed(0)}-{recording.endTime.toFixed(0)}s
-                              </p>
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                                {index + 1}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-white font-semibold">{recording.userId}</p>
+                                <p className="text-gray-400 text-sm">
+                                  {recording.startTime.toFixed(0)}-{recording.endTime.toFixed(0)}s
+                                </p>
+                              </div>
                             </div>
                             <audio
                               ref={(el) => {
@@ -668,46 +670,48 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                                 }
                               }}
                             />
-                            <Button
-                              onClick={() => togglePlayWithBacking(recording.id)}
-                              size="sm"
-                              variant="outline"
-                              className="flex-shrink-0"
-                            >
-                              {playingWithBackingId === recording.id ? '停止' : '带伴奏播放 (很可能不同步)'}
-                            </Button>
-                            <Button
-                              onClick={() => togglePlayRecording(recording.id)}
-                              size="sm"
-                              variant="outline"
-                              className="flex-shrink-0"
-                            >
-                              {playingRecordingId === recording.id ? '暂停' : '播放'}
-                            </Button>
-                            {recording.userId === userId && (
+                            <div className="flex gap-2 w-full">
                               <Button
-                                onClick={() => {
-                                  setSegmentStates(prev => {
-                                    const newMap = new Map(prev);
-                                    newMap.set(segmentIndex, {
-                                      isRecording: false,
-                                      recordedAudio: null,
-                                      recordedAudioUrl: null,
-                                      recordingTime: 0,
-                                      currentBackingTime: 0,
-                                    });
-                                    return newMap;
-                                  });
-                                  audioChunksRefs.current.delete(segmentIndex);
-                                  setRerecordingSegments(prev => new Set(prev).add(segmentIndex));
-                                  toast.info(`开始重新录制第 ${segmentIndex + 1} 部分`);
-                                }}
+                                onClick={() => togglePlayWithBacking(recording.id)}
                                 size="sm"
-                                className="flex-shrink-0 bg-orange-600 hover:bg-orange-700"
+                                variant="outline"
+                                className="flex-1"
                               >
-                                重录
+                                {playingWithBackingId === recording.id ? '停止' : '带伴奏播放 (很可能不同步)'}
                               </Button>
-                            )}
+                              <Button
+                                onClick={() => togglePlayRecording(recording.id)}
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
+                              >
+                                {playingRecordingId === recording.id ? '暂停' : '播放'}
+                              </Button>
+                              {recording.userId === userId && (
+                                <Button
+                                  onClick={() => {
+                                    setSegmentStates(prev => {
+                                      const newMap = new Map(prev);
+                                      newMap.set(segmentIndex, {
+                                        isRecording: false,
+                                        recordedAudio: null,
+                                        recordedAudioUrl: null,
+                                        recordingTime: 0,
+                                        currentBackingTime: 0,
+                                      });
+                                      return newMap;
+                                    });
+                                    audioChunksRefs.current.delete(segmentIndex);
+                                    setRerecordingSegments(prev => new Set(prev).add(segmentIndex));
+                                    toast.info(`准备重新录制第 ${segmentIndex + 1} 部分`);
+                                  }}
+                                  size="sm"
+                                  className="flex-1 bg-orange-600 hover:bg-orange-700"
+                                >
+                                  重录
+                                </Button>
+                              )}
+                            </div>
                           </div>
                           {playingRecordingId === recording.id && (
                             <div className="space-y-1">

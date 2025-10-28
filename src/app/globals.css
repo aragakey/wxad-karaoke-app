@@ -113,6 +113,9 @@
 }
 
 @layer base {
+  html, body {
+    @apply h-full w-full;
+  }
   * {
     @apply border-border outline-ring/50;
   }
