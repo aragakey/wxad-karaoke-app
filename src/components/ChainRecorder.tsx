@@ -303,6 +303,18 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
     setIsUploading(true);
     try {
+      // 先删除该用户在该时间段的旧录音
+      const oldRecordings = recordings.filter(r =>
+        r.startTime === startTime && r.endTime === endTime && r.userId === userId
+      );
+      
+      for (const oldRecording of oldRecordings) {
+        await fetch(`/api/chain-recordings/${oldRecording.id}`, {
+          method: 'DELETE',
+        });
+      }
+
+      // 上传新录音
       const formData = new FormData();
       const fileExtension = getFileExtension(audioMimeType);
       formData.append('file', state.recordedAudio, `recording.${fileExtension}`);
