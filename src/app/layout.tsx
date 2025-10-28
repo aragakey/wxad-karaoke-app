@@ -3,7 +3,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "合唱 Karaoke",
+  title: "Wxad Design Karaoke",
   description: "多人一起合唱歌曲的应用",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
 };
