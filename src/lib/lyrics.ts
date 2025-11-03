@@ -76,6 +76,7 @@ export interface LyricSegment {
 
 export interface UserLyricAssignment {
   userId: string;
+  password: string; // 密码是另一个人的名字
   segments: LyricSegment[];
 }
 
@@ -86,6 +87,7 @@ export const commonSegments: LyricSegment[] = [
 export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   {
     userId: 'kelsonluo',
+    password: 'dindinding',
     segments: [
       { startLineId: 1, endLineId: 2 },
       ...commonSegments,
@@ -93,13 +95,15 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'dindinding',
+    password: 'eugenecao',
     segments: [
       { startLineId: 3, endLineId: 6 },
       ...commonSegments,
     ]
   },
   {
-    userId: 'czshi',
+    userId: 'eugenecao',
+    password: 'yitaohou',
     segments: [
       { startLineId: 7, endLineId: 10 },
       ...commonSegments,
@@ -107,20 +111,31 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'yitaohou',
+    password: 'xinren',
     segments: [
       { startLineId: 11, endLineId: 16 },
       ...commonSegments,
     ]
   },
   {
-    userId: 'eugenecao',
+    userId: 'xinren',
+    password: 'czshi',
     segments: [
-      { startLineId: 17, endLineId: 22 },
+      { startLineId: 17, endLineId: 20 },
+      ...commonSegments,
+    ]
+  },
+  {
+    userId: 'czshi',
+    password: 'jihaoxie',
+    segments: [
+      { startLineId: 21, endLineId: 22 },
       ...commonSegments,
     ]
   },
   {
     userId: 'jihaoxie',
+    password: 'yijiejiang',
     segments: [
       { startLineId: 23, endLineId: 25 },
       ...commonSegments,
@@ -128,6 +143,7 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'yijiejiang',
+    password: 'hsinuuzhang',
     segments: [
       { startLineId: 26, endLineId: 28 },
       ...commonSegments,
@@ -135,6 +151,7 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'hsinuuzhang',
+    password: 'iveszheng',
     segments: [
       { startLineId: 29, endLineId: 30 },
       ...commonSegments,
@@ -142,6 +159,7 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'iveszheng',
+    password: 'lianxunwang',
     segments: [
       { startLineId: 31, endLineId: 34 },
       ...commonSegments,
@@ -149,6 +167,7 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'lianxunwang',
+    password: 'tooyangliu',
     segments: [
       { startLineId: 35, endLineId: 40 },
       ...commonSegments,
@@ -156,6 +175,7 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'tooyangliu',
+    password: 'renqiangxie',
     segments: [
       { startLineId: 42, endLineId: 45 },
       ...commonSegments,
@@ -163,6 +183,7 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'renqiangxie',
+    password: 'zakhongyang',
     segments: [
       { startLineId: 46, endLineId: 49 },
       ...commonSegments,
@@ -170,6 +191,7 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'zakhongyang',
+    password: 'kelsonluo',
     segments: [
       { startLineId: 50, endLineId: 55 },
       ...commonSegments,

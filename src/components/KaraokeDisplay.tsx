@@ -19,10 +19,30 @@ export default function KaraokeDisplay({
   const [currentLyric, setCurrentLyric] = useState<LyricLine | null>(null);
   const [nextLyric, setNextLyric] = useState<LyricLine | null>(null);
   const [progress, setProgress] = useState(0);
+  const [hasShownLyrics, setHasShownLyrics] = useState(false);
+  const [lastLyricInRange, setLastLyricInRange] = useState<LyricLine | null>(null);
+
+  // 当用户范围改变时，重置状态（切换段落）
+  useEffect(() => {
+    setHasShownLyrics(false);
+    setCurrentLyric(null);
+    setNextLyric(null);
+    setProgress(0);
+    setLastLyricInRange(null);
+  }, [userStartLineId, userEndLineId]);
 
   useEffect(() => {
     const current = getCurrentLyric(currentTime);
     let next = getNextLyric(currentTime);
+    
+    // 获取用户范围内的最后一句歌词
+    const userLyrics = MONDAY_LYRICS.filter(
+      l => l.id >= userStartLineId && l.id <= userEndLineId
+    );
+    const lastLyric = userLyrics.length > 0 ? userLyrics[userLyrics.length - 1] : null;
+    if (lastLyric) {
+      setLastLyricInRange(lastLyric);
+    }
     
     // 只显示用户范围内的歌词
     const isCurrentInRange = current && 
@@ -33,7 +53,18 @@ export default function KaraokeDisplay({
       next.id >= userStartLineId && 
       next.id <= userEndLineId;
     
-    setCurrentLyric(isCurrentInRange ? current : null);
+    // 如果当前有歌词在范围内，标记为已显示过歌词
+    if (isCurrentInRange) {
+      setHasShownLyrics(true);
+      setCurrentLyric(current);
+    } else if (hasShownLyrics && lastLyric) {
+      // 如果曾经显示过歌词，但现在不在范围内，显示最后一句歌词
+      setCurrentLyric(lastLyric);
+    } else {
+      // 如果从未显示过歌词，设置为 null（将显示"准备开始..."）
+      setCurrentLyric(null);
+    }
+    
     setNextLyric(isNextInRange ? next : null);
 
     // 计算当前歌词的进度（0-100%）
@@ -43,10 +74,13 @@ export default function KaraokeDisplay({
       setProgress(Math.min(100, (elapsed / duration) * 100));
     } else if (current && isCurrentInRange) {
       setProgress(100);
+    } else if (hasShownLyrics && lastLyric) {
+      // 如果播放完了，进度条保持 100%
+      setProgress(100);
     } else {
       setProgress(0);
     }
-  }, [currentTime, userStartLineId, userEndLineId]);
+  }, [currentTime, userStartLineId, userEndLineId, hasShownLyrics]);
 
   return (
     <div className="w-full bg-gradient-to-b from-purple-900/50 to-transparent rounded-lg p-6 min-h-32 flex flex-col justify-center items-center">
