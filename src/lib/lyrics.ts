@@ -111,14 +111,14 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'yitaohou',
-    password: 'xinren',
+    password: 'emmazjxwang',
     segments: [
       { startLineId: 11, endLineId: 16 },
       ...commonSegments,
     ]
   },
   {
-    userId: 'xinren',
+    userId: 'emmazjxwang',
     password: 'czshi',
     segments: [
       { startLineId: 17, endLineId: 20 },
