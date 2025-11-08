@@ -252,6 +252,26 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
       console.log("音频加载命令已发送，readyState:", audio.readyState)
 
+      // 在微信 H5 等环境中，尝试静音播放一下来触发音频加载
+      // 这可以绕过自动播放限制
+      const tryMutedPlay = async () => {
+        try {
+          audio.muted = true
+          await audio.play()
+          // 立即暂停并取消静音
+          audio.pause()
+          audio.muted = false
+          audio.currentTime = 0
+          console.log("静音播放成功，音频已触发加载")
+        } catch (e) {
+          console.log("静音播放失败（正常情况）:", e)
+          // 失败也没关系，继续正常流程
+        }
+      }
+      
+      // 延迟一下执行，等待 load() 完成
+      setTimeout(tryMutedPlay, 200)
+
       // 如果音频已经可以播放，检查是否需要预加载
       if (audio.readyState >= 3) {
         console.log("音频已经可以播放")
