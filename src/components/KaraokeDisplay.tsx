@@ -32,8 +32,12 @@ export default function KaraokeDisplay({
   }, [userStartLineId, userEndLineId]);
 
   useEffect(() => {
+    console.log('[KaraokeDisplay] currentTime:', currentTime, 'range:', userStartLineId, '-', userEndLineId);
     const current = getCurrentLyric(currentTime);
     let next = getNextLyric(currentTime);
+    
+    console.log('[KaraokeDisplay] current lyric:', current?.id, current?.time, current?.text);
+    console.log('[KaraokeDisplay] next lyric:', next?.id, next?.time, next?.text);
     
     // 获取用户范围内的最后一句歌词
     const userLyrics = MONDAY_LYRICS.filter(
