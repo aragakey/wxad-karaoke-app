@@ -566,6 +566,10 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
             // 现在设置播放位置（必须在加载元数据之后）
             audio.currentTime = startTime
             
+            // 确保音频未静音（修复静音播放后可能残留的静音状态）
+            audio.muted = false
+            audio.volume = 0.3
+            
             console.log('[录音] 准备播放伴奏:', {
               startTime,
               endTime,
