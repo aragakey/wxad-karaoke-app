@@ -124,86 +124,125 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
   // 设置伴奏音量和预加载音频
   useEffect(() => {
-    if (backingAudioRef.current) {
-      backingAudioRef.current.volume = 0.3
+    // 重置加载状态
+    setIsAudioLoaded(false)
 
-      // 预加载音频
-      const audio = backingAudioRef.current
+    // 确保音频元素已经渲染
+    if (!backingAudioRef.current) {
+      // 如果音频元素还没有渲染，等待一下再检查
+      const checkAudio = () => {
+        if (backingAudioRef.current) {
+          // 重新执行整个 useEffect 逻辑
+          const audio = backingAudioRef.current
+          if (!audio) return
 
-      // 计算用户所有段落的最大 endTime，确保预加载到足够的位置
-      let maxEndTime = 0
-      userSegments.forEach((segment) => {
-        const timeRange = getTimeRangeByLineIds(
-          segment.startLineId,
-          segment.endLineId
-        )
-        if (timeRange.endTime > maxEndTime) {
-          maxEndTime = timeRange.endTime
-        }
-      })
-
-      // 强制加载音频
-      audio.load()
-
-      // 等待元数据加载后，预加载到最大位置
-      const preloadAudio = () => {
-        if (audio.readyState >= 1) {
-          // HAVE_METADATA，可以设置 currentTime
-          // 预加载到最大位置（但不播放）
-          if (maxEndTime > 0 && audio.duration > maxEndTime) {
-            audio.currentTime = maxEndTime
-            // 等待加载到该位置
-            const checkLoaded = () => {
-              if (audio.readyState >= 3) {
-                // HAVE_FUTURE_DATA，已经加载到目标位置
-                console.log("音频预加载完成，已加载到", maxEndTime, "秒")
-                // 重置到开头，准备播放
-                audio.currentTime = 0
-                setIsAudioLoaded(true)
-              } else {
-                setTimeout(checkLoaded, 100)
-              }
-            }
-            setTimeout(checkLoaded, 100)
-          } else {
-            // 如果不需要预加载到特定位置，直接标记为已加载
-            setIsAudioLoaded(true)
-          }
+          audio.volume = 0.3
+          audio.src = ""
+          audio.src = song.backingTrackUrl
+          audio.load()
+          setIsAudioLoaded(true) // 简化处理，直接标记为已加载
         } else {
-          // 等待元数据加载
-          audio.addEventListener("loadedmetadata", preloadAudio, { once: true })
+          // 如果还是没有，设置一个超时重试（最多重试 10 次）
+          setTimeout(checkAudio, 100)
         }
       }
+      setTimeout(checkAudio, 100)
+      return
+    }
 
-      // 如果音频已经可以播放，直接标记为已加载
-      if (audio.readyState >= 3) {
-        setIsAudioLoaded(true)
+    const audio = backingAudioRef.current
+    audio.volume = 0.3
+
+    // 计算用户所有段落的最大 endTime，确保预加载到足够的位置
+    let maxEndTime = 0
+    userSegments.forEach((segment) => {
+      const timeRange = getTimeRangeByLineIds(
+        segment.startLineId,
+        segment.endLineId
+      )
+      if (timeRange.endTime > maxEndTime) {
+        maxEndTime = timeRange.endTime
+      }
+    })
+
+    // 定义事件处理函数
+    const handleError = () => {
+      console.error("音频加载失败")
+      // 即使加载失败，也显示 UI，避免用户无法使用
+      setIsAudioLoaded(true)
+    }
+
+    const handleCanPlayThrough = () => {
+      setIsAudioLoaded(true)
+    }
+
+    // 等待元数据加载后，预加载到最大位置
+    const preloadAudio = () => {
+      const currentAudio = backingAudioRef.current
+      if (!currentAudio) return
+
+      if (currentAudio.readyState >= 1) {
+        // HAVE_METADATA，可以设置 currentTime
+        // 预加载到最大位置（但不播放）
+        if (maxEndTime > 0 && currentAudio.duration > maxEndTime) {
+          currentAudio.currentTime = maxEndTime
+          // 等待加载到该位置
+          const checkLoaded = () => {
+            const checkAudio = backingAudioRef.current
+            if (!checkAudio) return
+
+            if (checkAudio.readyState >= 3) {
+              // HAVE_FUTURE_DATA，已经加载到目标位置
+              console.log("音频预加载完成，已加载到", maxEndTime, "秒")
+              // 重置到开头，准备播放
+              checkAudio.currentTime = 0
+              setIsAudioLoaded(true)
+            } else {
+              setTimeout(checkLoaded, 100)
+            }
+          }
+          setTimeout(checkLoaded, 100)
+        } else {
+          // 如果不需要预加载到特定位置，直接标记为已加载
+          setIsAudioLoaded(true)
+        }
       } else {
-        preloadAudio()
-      }
-
-      // 监听错误事件
-      const handleError = () => {
-        console.error("音频加载失败")
-        // 即使加载失败，也显示 UI，避免用户无法使用
-        setIsAudioLoaded(true)
-      }
-      audio.addEventListener("error", handleError)
-
-      // 监听 canplaythrough 事件（音频可以完整播放）
-      const handleCanPlayThrough = () => {
-        setIsAudioLoaded(true)
-      }
-      audio.addEventListener("canplaythrough", handleCanPlayThrough, {
-        once: true,
-      })
-
-      return () => {
-        audio.removeEventListener("error", handleError)
-        audio.removeEventListener("canplaythrough", handleCanPlayThrough)
+        // 等待元数据加载
+        currentAudio.addEventListener("loadedmetadata", preloadAudio, { once: true })
       }
     }
-  }, [userSegments])
+
+    // 强制重新加载音频（确保每次都是全新的加载）
+    // 通过修改 src 来触发重新加载
+    audio.src = ""
+    audio.src = song.backingTrackUrl
+    audio.load()
+
+    // 如果音频已经可以播放，直接标记为已加载
+    if (audio.readyState >= 3) {
+      setIsAudioLoaded(true)
+    } else {
+      preloadAudio()
+    }
+
+    // 监听错误事件
+    audio.addEventListener("error", handleError)
+
+    // 监听 canplaythrough 事件（音频可以完整播放）
+    audio.addEventListener("canplaythrough", handleCanPlayThrough, {
+      once: true,
+    })
+
+    // 返回清理函数
+    return () => {
+      const cleanupAudio = backingAudioRef.current
+      if (cleanupAudio) {
+        cleanupAudio.removeEventListener("error", handleError)
+        cleanupAudio.removeEventListener("canplaythrough", handleCanPlayThrough)
+        cleanupAudio.removeEventListener("loadedmetadata", preloadAudio)
+      }
+    }
+  }, [userId, song.backingTrackUrl, userSegments])
 
   // 更新播放进度
   useEffect(() => {
@@ -892,32 +931,24 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
     }
   }
 
-  // 如果音频未加载完成，显示加载提示
-  if (!isAudioLoaded) {
-    return (
-      <div className="space-y-6">
-        {/* 隐藏的音频元素 - 预加载 */}
-        <audio
-          ref={backingAudioRef}
-          src={song.backingTrackUrl}
-          preload="auto"
-        />
+  return (
+    <div className="space-y-6">
+      {/* 隐藏的音频元素 - 预加载（始终渲染，避免重复创建） */}
+      <audio ref={backingAudioRef} src={song.backingTrackUrl} preload="auto" />
 
-        {/* 加载提示 */}
+      {/* 如果音频未加载完成，显示加载提示 */}
+      {!isAudioLoaded && (
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4"></div>
             <p className="text-gray-400 text-sm">正在加载音频...</p>
           </CardContent>
         </Card>
-      </div>
-    )
-  }
+      )}
 
-  return (
-    <div className="space-y-6">
-      {/* 隐藏的音频元素 - 预加载 */}
-      <audio ref={backingAudioRef} src={song.backingTrackUrl} preload="auto" />
+      {/* 如果音频已加载，显示主要内容 */}
+      {isAudioLoaded && (
+        <>
 
       {/* 总体进度 */}
       <Card className="bg-slate-800/50 border-slate-700">
@@ -1416,6 +1447,8 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
           </div>
         )
       })}
+        </>
+      )}
     </div>
   )
 }
