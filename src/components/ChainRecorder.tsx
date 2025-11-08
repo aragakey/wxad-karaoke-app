@@ -135,13 +135,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
     const initTimer = setTimeout(() => {
       const audio = backingAudioRef.current
       if (!audio) {
-        console.warn("音频元素未找到，设置超时标记为已加载")
-        // 如果音频元素不存在，设置超时后标记为已加载（避免无限等待）
-        const fallbackTimeout = setTimeout(() => {
-          setIsAudioLoaded(true)
-          isAudioLoadedRef.current = true
-        }, 2000)
-        cleanupFunctions.push(() => clearTimeout(fallbackTimeout))
+        console.error("音频元素未找到，无法加载音频")
         return
       }
 
@@ -164,13 +158,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       // 定义事件处理函数
       const handleError = (e: Event) => {
         console.error("音频加载失败", e)
-        // 即使加载失败，也显示 UI，避免用户无法使用
-        setIsAudioLoaded(true)
-        isAudioLoadedRef.current = true
-      }
-
-      const handleCanPlayThrough = () => {
-        console.log("音频可以完整播放")
+        // 加载失败时也显示页面，让用户知道有问题
         setIsAudioLoaded(true)
         isAudioLoadedRef.current = true
       }
@@ -179,9 +167,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       const preloadAudio = () => {
         const currentAudio = backingAudioRef.current
         if (!currentAudio) {
-          console.warn("preloadAudio: 音频元素不存在")
-          setIsAudioLoaded(true)
-          isAudioLoadedRef.current = true
+          console.error("preloadAudio: 音频元素不存在")
           return
         }
 
@@ -193,18 +179,13 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
           if (maxEndTime > 0 && currentAudio.duration > maxEndTime) {
             currentAudio.currentTime = maxEndTime
             // 等待加载到该位置
-            let checkCount = 0
-            const maxChecks = 50 // 最多检查 5 秒
             let checkTimer: NodeJS.Timeout | null = null
             const checkLoaded = () => {
               const checkAudio = backingAudioRef.current
               if (!checkAudio) {
-                setIsAudioLoaded(true)
-                isAudioLoadedRef.current = true
                 return
               }
 
-              checkCount++
               if (checkAudio.readyState >= 3) {
                 // HAVE_FUTURE_DATA，已经加载到目标位置
                 console.log("音频预加载完成，已加载到", maxEndTime, "秒")
@@ -212,13 +193,9 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                 checkAudio.currentTime = 0
                 setIsAudioLoaded(true)
                 isAudioLoadedRef.current = true
-              } else if (checkCount < maxChecks) {
-                checkTimer = setTimeout(checkLoaded, 100)
               } else {
-                // 超时，直接标记为已加载
-                console.warn("音频预加载超时，标记为已加载")
-                setIsAudioLoaded(true)
-                isAudioLoadedRef.current = true
+                // 继续等待，直到加载完成
+                checkTimer = setTimeout(checkLoaded, 100)
               }
             }
             checkTimer = setTimeout(checkLoaded, 100)
@@ -228,24 +205,42 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
               })
             }
           } else {
-            // 如果不需要预加载到特定位置，直接标记为已加载
-            console.log("不需要预加载到特定位置，直接标记为已加载")
-            setIsAudioLoaded(true)
-            isAudioLoadedRef.current = true
+            // 如果不需要预加载到特定位置，等待 canplaythrough 事件
+            console.log("不需要预加载到特定位置，等待 canplaythrough 事件")
           }
         } else {
           // 等待元数据加载
           console.log("等待元数据加载...")
           currentAudio.addEventListener("loadedmetadata", preloadAudio, { once: true })
-          // 设置超时，避免无限等待
-          const metadataTimeout = setTimeout(() => {
-            if (!isAudioLoadedRef.current) {
-              console.warn("等待元数据超时，标记为已加载")
+        }
+      }
+
+      // 监听 canplaythrough 事件（音频可以完整播放）- 这是真正的加载完成标志
+      const handleCanPlayThrough = () => {
+        console.log("音频可以完整播放")
+        const currentAudio = backingAudioRef.current
+        if (!currentAudio) return
+
+        // 如果需要预加载到特定位置，检查是否已经预加载完成
+        if (maxEndTime > 0 && currentAudio.duration > maxEndTime) {
+          // 检查是否已经预加载到目标位置
+          if (currentAudio.readyState >= 3) {
+            // 尝试设置到目标位置，确保已加载
+            currentAudio.currentTime = maxEndTime
+            // 等待一下，确保位置设置成功
+            setTimeout(() => {
+              currentAudio.currentTime = 0
               setIsAudioLoaded(true)
               isAudioLoadedRef.current = true
-            }
-          }, 3000)
-          cleanupFunctions.push(() => clearTimeout(metadataTimeout))
+            }, 100)
+          } else {
+            // 如果还没加载到目标位置，继续等待
+            preloadAudio()
+          }
+        } else {
+          // 不需要预加载，直接标记为已加载
+          setIsAudioLoaded(true)
+          isAudioLoadedRef.current = true
         }
       }
 
@@ -257,12 +252,19 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
       console.log("音频加载命令已发送，readyState:", audio.readyState)
 
-      // 如果音频已经可以播放，直接标记为已加载
+      // 如果音频已经可以播放，检查是否需要预加载
       if (audio.readyState >= 3) {
-        console.log("音频已经可以播放，直接标记为已加载")
-        setIsAudioLoaded(true)
-        isAudioLoadedRef.current = true
+        console.log("音频已经可以播放")
+        if (maxEndTime > 0 && audio.duration > maxEndTime) {
+          // 需要预加载到特定位置
+          preloadAudio()
+        } else {
+          // 不需要预加载，直接标记为已加载
+          setIsAudioLoaded(true)
+          isAudioLoadedRef.current = true
+        }
       } else {
+        // 等待加载
         preloadAudio()
       }
 
@@ -273,16 +275,6 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       audio.addEventListener("canplaythrough", handleCanPlayThrough, {
         once: true,
       })
-
-      // 设置总超时，防止无限等待
-      const totalTimeout = setTimeout(() => {
-        if (!isAudioLoadedRef.current) {
-          console.warn("音频加载总超时，强制标记为已加载")
-          setIsAudioLoaded(true)
-          isAudioLoadedRef.current = true
-        }
-      }, 5000)
-      cleanupFunctions.push(() => clearTimeout(totalTimeout))
 
       // 添加事件监听器清理
       cleanupFunctions.push(() => {
