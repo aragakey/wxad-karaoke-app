@@ -21,8 +21,8 @@ const DEFAULT_SONG = {
   id: "default-song",
   title: "Monday (feat. Lionman)",
   artist: "窦靖童",
-  backingTrackUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-ins.mp3",
-  originalUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original.mp3",
+  backingTrackUrl: "/assets/monday-ins.mp3",
+  originalUrl: "/assets/monday-original.mp3",
 }
 
 export default function Home() {
