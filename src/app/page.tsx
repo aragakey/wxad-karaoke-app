@@ -29,6 +29,7 @@ export default function Home() {
   const [userId, setUserId] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     // 从登录系统获取用户ID
@@ -37,6 +38,7 @@ export default function Home() {
       setUserId(storedUserId)
       setIsLoggedIn(true)
     }
+    setIsLoading(false)
   }, [])
 
   const handleLogin = (e: React.FormEvent) => {
@@ -182,7 +184,8 @@ export default function Home() {
             </h2>
             <p className="text-gray-400">{DEFAULT_SONG.artist}</p>
           </div>
-          <ChainRecorder song={DEFAULT_SONG} userId={userId} />
+          {/* 等待 localStorage 加载完成后再渲染 ChainRecorder */}
+          {!isLoading && <ChainRecorder song={DEFAULT_SONG} userId={userId} />}
         </div>
       </main>
     </div>
