@@ -256,11 +256,13 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
       // 这可以绕过自动播放限制
       const tryMutedPlay = async () => {
         try {
+          const originalVolume = audio.volume
           audio.muted = true
           await audio.play()
           // 立即暂停并取消静音
           audio.pause()
           audio.muted = false
+          audio.volume = originalVolume // 确保音量不变
           audio.currentTime = 0
           console.log("静音播放成功，音频已触发加载")
         } catch (e) {
@@ -563,6 +565,14 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
             // 现在设置播放位置（必须在加载元数据之后）
             audio.currentTime = startTime
+            
+            console.log('[录音] 准备播放伴奏:', {
+              startTime,
+              endTime,
+              volume: audio.volume,
+              muted: audio.muted,
+              readyState: audio.readyState
+            })
 
             // 等待音频加载到可以播放的状态
             if (audio.readyState < 3) {
