@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Play, Pause, Users, Clock } from 'lucide-react';
+import { RefreshCw, Play, Pause, Users, Clock, Download } from 'lucide-react';
+import { commonSegments } from '@/lib/lyrics';
 
 interface Recording {
   id: string;
@@ -13,6 +14,8 @@ interface Recording {
   endTime: number;
   audioUrl: string;
   createdAt: string;
+  startLineId?: number;
+  endLineId?: number;
 }
 
 export default function ViewDataPage() {
@@ -71,9 +74,55 @@ export default function ViewDataPage() {
     }
   };
 
+  const isCommonSegment = (recording: Recording): boolean => {
+    if (recording.startLineId === undefined || recording.endLineId === undefined) {
+      return false;
+    }
+    return commonSegments.some(
+      segment =>
+        segment.startLineId === recording.startLineId &&
+        segment.endLineId === recording.endLineId
+    );
+  };
+
+  const handleDownload = async (recording: Recording) => {
+    try {
+      const response = await fetch(recording.audioUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const suffix = isCommonSegment(recording) ? '-2' : '-1';
+      const extension = blob.type.includes('webm') ? 'webm' : 'mp3';
+      a.download = `${recording.userId}${suffix}.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Failed to download audio:', error);
+    }
+  };
+
   // 统计数据
   const uniqueUsers = Array.from(new Set(recordings.map(r => r.userId)));
   const totalDuration = recordings.reduce((sum, r) => sum + (r.endTime - r.startTime), 0);
+
+  // 按名字分组并按时间排序（最新的在前）
+  const groupedRecordings = recordings.reduce((acc, recording) => {
+    if (!acc[recording.userId]) {
+      acc[recording.userId] = [];
+    }
+    acc[recording.userId].push(recording);
+    return acc;
+  }, {} as Record<string, Recording[]>);
+
+  // 对每个分组的录音按创建时间降序排序
+  Object.keys(groupedRecordings).forEach(userId => {
+    groupedRecordings[userId].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
@@ -162,53 +211,73 @@ export default function ViewDataPage() {
                 <p className="text-gray-400">暂无录音数据</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {recordings.map((recording) => {
-                  createAudioElement(recording);
-                  return (
-                    <div
-                      key={recording.id}
-                      className="bg-slate-900/50 p-4 rounded-lg flex items-center justify-between"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-4">
-                          <div className="bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold">
-                            {recording.userId.charAt(0).toUpperCase()}
+              <div className="space-y-6">
+                {Object.entries(groupedRecordings).map(([userId, userRecordings]) => (
+                  <div key={userId} className="space-y-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                        {userId.charAt(0).toUpperCase()}
+                      </div>
+                      <h3 className="text-white font-semibold text-lg">{userId}</h3>
+                      <span className="text-gray-400 text-sm">({userRecordings.length}个录音)</span>
+                    </div>
+                    {userRecordings.map((recording) => {
+                      createAudioElement(recording);
+                      return (
+                        <div
+                          key={recording.id}
+                          className="bg-slate-900/50 p-4 rounded-lg flex items-center justify-between ml-4"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-4">
+                              <div className="bg-purple-600/50 text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold">
+                                {recording.userId.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-white font-semibold">{recording.userId}</p>
+                                <p className="text-gray-400 text-sm">
+                                  {recording.startTime.toFixed(1)}s - {recording.endTime.toFixed(1)}s
+                                  <span className="ml-2">
+                                    ({new Date(recording.createdAt).toLocaleString()})
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-white font-semibold">{recording.userId}</p>
-                            <p className="text-gray-400 text-sm">
-                              {recording.startTime.toFixed(1)}s - {recording.endTime.toFixed(1)}s
-                              <span className="ml-2">
-                                ({new Date(recording.createdAt).toLocaleString()})
-                              </span>
-                            </p>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              onClick={() => togglePlay(recording)}
+                              size="sm"
+                              variant="outline"
+                              className="flex items-center gap-2"
+                            >
+                              {playingId === recording.id ? (
+                                <>
+                                  <Pause className="w-4 h-4" />
+                                  暂停
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="w-4 h-4" />
+                                  播放
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              onClick={() => handleDownload(recording)}
+                              size="sm"
+                              variant="outline"
+                              className="flex items-center gap-2"
+                            >
+                              <Download className="w-4 h-4" />
+                              下载
+                            </Button>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          onClick={() => togglePlay(recording)}
-                          size="sm"
-                          variant="outline"
-                          className="flex items-center gap-2"
-                        >
-                          {playingId === recording.id ? (
-                            <>
-                              <Pause className="w-4 h-4" />
-                              暂停
-                            </>
-                          ) : (
-                            <>
-                              <Play className="w-4 h-4" />
-                              播放
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
