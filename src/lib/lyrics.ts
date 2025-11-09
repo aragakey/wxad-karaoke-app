@@ -76,6 +76,8 @@ export interface LyricSegment {
 
 export interface UserLyricAssignment {
   userId: string;
+  nickname: string;
+  avatar: string;
   password: string; // 密码是另一个人的名字
   segments: LyricSegment[];
 }
@@ -87,6 +89,8 @@ export const commonSegments: LyricSegment[] = [
 export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   {
     userId: 'kelsonluo',
+    nickname: "kelson",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/kelson-avatar.png",
     password: 'dindinding',
     segments: [
       { startLineId: 1, endLineId: 2 },
@@ -95,6 +99,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'dindinding',
+    nickname: "din",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/din-avatar.png",
     password: 'eugenecao',
     segments: [
       { startLineId: 3, endLineId: 6 },
@@ -103,6 +109,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'eugenecao',
+    nickname: "che",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/che-ava.JPG",
     password: 'yitaohou',
     segments: [
       { startLineId: 7, endLineId: 10 },
@@ -111,6 +119,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'yitaohou',
+    nickname: "tao",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/tao-avatar.JPG",
     password: 'emmazjxwang',
     segments: [
       { startLineId: 11, endLineId: 16 },
@@ -119,6 +129,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'emmazjxwang',
+    nickname: "jixin",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/jixin-avatar.JPG",
     password: 'czshi',
     segments: [
       { startLineId: 17, endLineId: 20 },
@@ -127,6 +139,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'czshi',
+    nickname: "cz",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/cz-avatar.png",
     password: 'jihaoxie',
     segments: [
       { startLineId: 21, endLineId: 22 },
@@ -135,6 +149,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'jihaoxie',
+    nickname: "jihao",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/jihao-avatar.png",
     password: 'yijiejiang',
     segments: [
       { startLineId: 23, endLineId: 25 },
@@ -143,6 +159,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'yijiejiang',
+    nickname: "yijie",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/gakey-avatar.JPG",
     password: 'hsinuuzhang',
     segments: [
       { startLineId: 26, endLineId: 28 },
@@ -151,6 +169,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'hsinuuzhang',
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/hsinuu-avatar.JPG",
+    nickname: "xinyu",
     password: 'iveszheng',
     segments: [
       { startLineId: 29, endLineId: 30 },
@@ -159,6 +179,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'iveszheng',
+    nickname: "ziyue",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/ziyue-avatar.JPG",
     password: 'lianxunwang',
     segments: [
       { startLineId: 31, endLineId: 34 },
@@ -167,6 +189,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'lianxunwang',
+    nickname: "lianxun",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/lianxun-avatar.JPG",
     password: 'tooyangliu',
     segments: [
       { startLineId: 35, endLineId: 40 },
@@ -175,6 +199,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'tooyangliu',
+    nickname: "yang",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/yang-ava.JPG",
     password: 'renqiangxie',
     segments: [
       { startLineId: 42, endLineId: 45 },
@@ -183,6 +209,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'renqiangxie',
+    nickname: "renqiang",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/renqiang-avatar.JPG",
     password: 'zakhongyang',
     segments: [
       { startLineId: 46, endLineId: 49 },
@@ -191,6 +219,8 @@ export const USER_ASSIGNMENTS: UserLyricAssignment[] = [
   },
   {
     userId: 'zakhongyang',
+    nickname: "zehang",
+    avatar: "https://wxa.wxs.qq.com/wxad-design/yijie/zehang-avatar.JPG",
     password: 'kelsonluo',
     segments: [
       { startLineId: 50, endLineId: 55 },

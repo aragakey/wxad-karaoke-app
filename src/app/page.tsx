@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Music, Mic } from "lucide-react"
 import ChainRecorder from "@/components/ChainRecorder"
+import CircleKaraoke from "@/components/CircleKaraoke"
 import { USER_ASSIGNMENTS } from "@/lib/lyrics"
 import { toast } from "sonner"
 
@@ -21,8 +22,10 @@ const DEFAULT_SONG = {
   id: "default-song",
   title: "Monday (feat. Lionman)",
   artist: "窦靖童",
-  backingTrackUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original-music.mp3",
+  backingTrackUrl:
+    "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original-music.mp3",
   originalUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original.mp3",
+  finalMixUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-1109-to-lianxun.MP3",
 }
 
 export default function Home() {
@@ -175,7 +178,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8 pb-24">
+      <main className="max-w-6xl mx-auto px-4 py-8 pb-24 overflow-hidden">
         <div className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
@@ -185,6 +188,12 @@ export default function Home() {
             <p className="text-gray-400">{DEFAULT_SONG.artist}</p>
           </div>
           {/* 等待 localStorage 加载完成后再渲染 ChainRecorder */}
+          {/* 仅对 lianxunwang 显示合唱预览 */}
+          {!isLoading &&
+            userId === "lianxunwang" &&
+            DEFAULT_SONG.finalMixUrl && (
+              <CircleKaraoke originalUrl={DEFAULT_SONG.finalMixUrl} />
+            )}
           {!isLoading && <ChainRecorder song={DEFAULT_SONG} userId={userId} />}
         </div>
       </main>
