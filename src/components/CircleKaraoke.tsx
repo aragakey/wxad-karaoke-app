@@ -183,8 +183,8 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
       
       <Card className="bg-slate-800/50 border-slate-700">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          🎤 合成预览
+        <CardTitle className="text-white flex items-center justify-between gap-2">
+          <span>🎤 合成预览（头像可点）</span>
           {isChorusPart && (
             <span className="text-sm text-purple-400 animate-pulse">
               (合唱中 🌟)
