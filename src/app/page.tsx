@@ -25,7 +25,8 @@ const DEFAULT_SONG = {
   backingTrackUrl:
     "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original-music.mp3",
   originalUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original.mp3",
-  finalMixUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-1109-to-lianxun.MP3",
+  finalMixUrl:
+    "https://wxa.wxs.qq.com/wxad-design/yijie/monday-1109-to-lianxun.MP3",
 }
 
 export default function Home() {
@@ -188,12 +189,9 @@ export default function Home() {
             <p className="text-gray-400">{DEFAULT_SONG.artist}</p>
           </div>
           {/* 等待 localStorage 加载完成后再渲染 ChainRecorder */}
-          {/* 仅对 lianxunwang 显示合唱预览 */}
-          {!isLoading &&
-            userId === "lianxunwang" &&
-            DEFAULT_SONG.finalMixUrl && (
-              <CircleKaraoke originalUrl={DEFAULT_SONG.finalMixUrl} />
-            )}
+          {!isLoading && DEFAULT_SONG.finalMixUrl && (
+            <CircleKaraoke originalUrl={DEFAULT_SONG.finalMixUrl} />
+          )}
           {!isLoading && <ChainRecorder song={DEFAULT_SONG} userId={userId} />}
         </div>
       </main>
