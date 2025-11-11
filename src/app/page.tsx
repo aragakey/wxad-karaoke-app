@@ -108,7 +108,7 @@ export default function Home() {
                 <Label htmlFor="userId">用户ID</Label>
                 <Input
                   id="userId"
-                  placeholder="输入企微全名，小写"
+                  placeholder="输入企微全名，如：lianxunwang"
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
                   className="text-base"
@@ -119,7 +119,7 @@ export default function Home() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="输入给你的密码"
+                  placeholder="输入给你的密码，如：tooyangliu"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="text-base"
