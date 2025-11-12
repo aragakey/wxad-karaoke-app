@@ -26,7 +26,7 @@ const DEFAULT_SONG = {
     "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original-music.mp3",
   originalUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original.mp3",
   finalMixUrl:
-    "https://wxa.wxs.qq.com/wxad-design/yijie/monday-wxad-design-20251112.MP3",
+    "https://wxa.wxs.qq.com/wxad-design/yijie/monday-by-caoxun.mp3",
 }
 
 export default function Home() {
@@ -182,7 +182,7 @@ export default function Home() {
       <main className="max-w-6xl mx-auto px-4 py-8 pb-24 overflow-hidden">
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+            <h2 className="text-[17px] font-bold text-white mb-2 flex items-center gap-2">
               <Mic className="w-6 h-6" />
               {DEFAULT_SONG.title}
             </h2>
