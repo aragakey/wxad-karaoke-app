@@ -20,8 +20,8 @@ import { toast } from "sonner"
 // 默认歌曲配置
 const DEFAULT_SONG = {
   id: "default-song",
-  title: "Monday (feat. Lionman)",
-  artist: "窦靖童",
+  title: "Monday (feat. Lionman)(cover 窦靖童)",
+  artist: "草旬合唱团",
   backingTrackUrl:
     "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original-music.mp3",
   originalUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original.mp3",
