@@ -192,6 +192,26 @@ export default function Home() {
           {!isLoading && DEFAULT_SONG.finalMixUrl && (
             <CircleKaraoke originalUrl={DEFAULT_SONG.finalMixUrl} />
           )}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">
+              Changelog:
+            </h3>
+            <div className="space-y-2 text-sm text-gray-300">
+              <div className="border-l-2 border-purple-500 pl-3 py-1">
+                <span className="font-medium text-purple-400">20251115:</span>{" "}
+                kelson 由于听得难受申请重录，狂录 19
+                条后我发现完全低了几度，重新用第一条升了半个音，终于舒服了
+              </div>
+              <div className="border-l-2 border-purple-500 pl-3 py-1">
+                <span className="font-medium text-purple-400">20251112:</span>{" "}
+                lianxun 部分已添加
+              </div>
+              <div className="border-l-2 border-purple-500 pl-3 py-1">
+                <span className="font-medium text-purple-400">20251111:</span>{" "}
+                完成初版录制，让大家承受了一定痛苦
+              </div>
+            </div>
+          </div>
           {!isLoading && <ChainRecorder song={DEFAULT_SONG} userId={userId} />}
         </div>
       </main>
