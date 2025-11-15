@@ -26,7 +26,7 @@ const DEFAULT_SONG = {
     "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original-music.mp3",
   originalUrl: "https://wxa.wxs.qq.com/wxad-design/yijie/monday-original.mp3",
   finalMixUrl:
-    "https://wxa.wxs.qq.com/wxad-design/yijie/monday-by-caoxun.mp3",
+    "https://wxa.wxs.qq.com/wxad-design/yijie/monday-by-caoxun-2.MP3",
 }
 
 export default function Home() {
