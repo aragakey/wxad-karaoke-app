@@ -116,11 +116,9 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
     new Map()
   )
 
-  // 获取已有的录音
+  // 获取已有的录音（仅初始加载一次，后续通过操作触发刷新）
   useEffect(() => {
     fetchRecordings()
-    const interval = setInterval(fetchRecordings, 2000)
-    return () => clearInterval(interval)
   }, [])
 
   // 设置伴奏音量和预加载音频
@@ -442,10 +440,8 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
   const fetchRecordings = async () => {
     try {
       const response = await fetch(
-        `/api/chain-recordings?songId=${song.id}&t=${Date.now()}`,
-        {
-          cache: "no-store",
-        }
+        `/api/chain-recordings?songId=${song.id}`,
+        { cache: "no-store" }
       )
       if (response.ok) {
         const data = await response.json()
