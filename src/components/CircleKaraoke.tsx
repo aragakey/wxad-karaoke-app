@@ -181,13 +181,13 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
       {/* 注入自定义动画样式 */}
       <style dangerouslySetInnerHTML={{ __html: spinKeyframes }} />
       
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-stone-900/80 border-stone-800">
       <CardHeader>
-        <CardTitle className="text-sm text-white flex items-center justify-between gap-2">
-          <span>🎤 合唱（头像可点）</span>
+        <CardTitle className="text-sm text-stone-200 flex items-center justify-between gap-2">
+          <span>合唱（头像可点）</span>
           {isChorusPart && (
-            <span className="text-purple-400 animate-pulse">
-              合唱中 🌟
+            <span className="text-violet-400 animate-pulse">
+              合唱中
             </span>
           )}
         </CardTitle>
@@ -197,10 +197,10 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
         <div className="relative w-full aspect-square max-w-2xl mx-auto">
           {/* 中心歌词显示区域 */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className={`w-3/5 h-3/5 bg-gradient-to-br from-purple-900/80 to-pink-900/80 rounded-full border-2 flex flex-col items-center justify-center p-6 backdrop-blur-sm overflow-visible transition-all duration-500 ${
+            <div className={`w-3/5 h-3/5 bg-stone-900 rounded-full border-2 flex flex-col items-center justify-center p-6 overflow-visible transition-all duration-500 ${
               isChorusPart 
-                ? "border-pink-400/70 shadow-lg shadow-pink-500/50" 
-                : "border-purple-500/50"
+                ? "border-violet-400/40 shadow-lg shadow-violet-500/15" 
+                : "border-stone-700"
             }`}>
               <div className="text-center space-y-2 max-w-full">
                 {getDisplayLyrics().map((lyric) => (
@@ -208,10 +208,10 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
                     key={lyric.id}
                     className={`transition-all duration-300 whitespace-normal break-words px-2 ${
                       lyric.isCurrent
-                        ? "text-white text-lg md:text-xl font-bold"
+                        ? "text-stone-100 text-lg md:text-xl font-bold"
                         : lyric.isPast
-                        ? "text-gray-500 text-xs md:text-sm"
-                        : "text-gray-400 text-sm md:text-base"
+                        ? "text-stone-600 text-xs md:text-sm"
+                        : "text-stone-400 text-sm md:text-base"
                     }`}
                   >
                     {lyric.text}
@@ -264,8 +264,8 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
                       <div
                         className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center overflow-hidden transition-all duration-300 ${
                           isActive
-                            ? "ring-3 ring-purple-400 shadow-lg shadow-purple-500/50"
-                            : "ring-1 ring-slate-600 hover:ring-2 hover:ring-purple-300"
+                            ? "ring-3 ring-violet-400 shadow-lg shadow-violet-500/25"
+                            : "ring-1 ring-stone-600 hover:ring-2 hover:ring-violet-300"
                         }`}
                       >
                         <img
@@ -277,7 +277,7 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
                             e.currentTarget.style.display = 'none'
                             const parent = e.currentTarget.parentElement
                             if (parent) {
-                              parent.classList.add('bg-slate-700')
+                              parent.classList.add('bg-stone-700')
                               parent.innerHTML = `<span class="text-white font-bold text-sm md:text-base">${user.nickname.slice(0, 2).toUpperCase()}</span>`
                             }
                           }}
@@ -287,8 +287,8 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
                       {/* 脉冲动画 - 只在当前唱歌的人显示 */}
                       {isActive && (
                         <>
-                          <div className="absolute inset-0 rounded-full bg-purple-500/30 animate-ping"></div>
-                          <div className="absolute inset-0 rounded-full bg-purple-500/20 animate-pulse"></div>
+                          <div className="absolute inset-0 rounded-full bg-violet-500/25 animate-ping"></div>
+                          <div className="absolute inset-0 rounded-full bg-violet-500/15 animate-pulse"></div>
                         </>
                       )}
 
@@ -296,8 +296,8 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
                       <div
                         className={`absolute top-full mt-1 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-[10px] md:text-xs transition-all duration-300 ${
                           isActive
-                            ? "text-purple-300 font-bold"
-                            : "text-gray-400"
+                            ? "text-violet-300 font-bold"
+                            : "text-stone-500"
                         }`}
                       >
                         {user.nickname}
@@ -321,7 +321,7 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
               onValueChange={handleSeek}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-400">
+            <div className="flex justify-between text-xs text-stone-500">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
@@ -332,7 +332,7 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
             <Button
               onClick={togglePlay}
               size="lg"
-              className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="w-24 h-24 rounded-full bg-violet-500 hover:bg-violet-400 transition-colors"
             >
               {isPlaying ? (
                 <Pause className="w-10 h-10" />

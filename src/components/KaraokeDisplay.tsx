@@ -87,43 +87,39 @@ export default function KaraokeDisplay({
   }, [currentTime, userStartLineId, userEndLineId, hasShownLyrics]);
 
   return (
-    <div className="w-full bg-gradient-to-b from-purple-900/50 to-transparent rounded-lg p-6 min-h-32 flex flex-col justify-center items-center">
+    <div className="w-full bg-stone-800/60 rounded-lg p-6 min-h-32 flex flex-col justify-center items-center">
       {isPlaying ? (
         <div className="w-full space-y-4">
-          {/* 当前歌词 */}
           <div className="relative">
             <div className="text-center">
-              <p className="text-3xl font-bold transition-all duration-300 text-yellow-300 drop-shadow-lg">
+              <p className="text-3xl font-bold transition-all duration-300 text-stone-100">
                 {currentLyric?.text || '准备开始...'}
               </p>
             </div>
 
-            {/* 进度条蒙层 */}
             {currentLyric && (
-              <div className="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+              <div className="mt-4 h-1 bg-stone-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-yellow-400 to-yellow-300 transition-all duration-100"
+                  className="h-full bg-violet-400 transition-all duration-100"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             )}
           </div>
 
-          {/* 下一句歌词预览 */}
           {nextLyric && (
             <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">下一句</p>
-              <p className="text-lg text-gray-500">{nextLyric.text}</p>
+              <p className="text-xs text-stone-500 mb-1">下一句</p>
+              <p className="text-lg text-stone-500">{nextLyric.text}</p>
             </div>
           )}
 
-          {/* 用户范围提示 */}
-          <div className="text-center text-xs text-gray-400 mt-4">
+          <div className="text-center text-xs text-stone-500 mt-4">
             <p>你的部分: 第 {userStartLineId} - {userEndLineId} 句</p>
           </div>
         </div>
       ) : (
-        <div className="text-center text-gray-400">
+        <div className="text-center text-stone-500">
           <p className="text-lg">点击播放开始唱歌</p>
           <p className="text-sm mt-2">你的部分: 第 {userStartLineId} - {userEndLineId} 句</p>
         </div>

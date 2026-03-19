@@ -157,7 +157,7 @@ export default function CreateSongDialog({
                 onChange={(e) => setBackingTrackFile(e.target.files?.[0] || null)}
               />
               {backingTrackFile && (
-                <p className="text-sm text-gray-500">{backingTrackFile.name}</p>
+                <p className="text-sm text-stone-500">{backingTrackFile.name}</p>
               )}
             </div>
           </div>
@@ -180,7 +180,7 @@ export default function CreateSongDialog({
 
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {parts.map((part, index) => (
-                <Card key={index} className="bg-slate-50">
+                <Card key={index} className="bg-stone-800/60">
                   <CardContent className="pt-4 space-y-3">
                     <div className="flex items-end gap-2">
                       <div className="flex-1 space-y-1">

@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Music, Mic } from "lucide-react"
+import { Mic } from "lucide-react"
 import ChainRecorder from "@/components/ChainRecorder"
 import CircleKaraoke from "@/components/CircleKaraoke"
 import { USER_ASSIGNMENTS } from "@/lib/lyrics"
@@ -36,10 +36,13 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // 从登录系统获取用户ID
     const storedUserId = localStorage.getItem("userId")
     if (storedUserId) {
       setUserId(storedUserId)
+      setIsLoggedIn(true)
+    } else if (!localStorage.getItem("loggedOut")) {
+      setUserId("lianxunwang")
+      localStorage.setItem("userId", "lianxunwang")
       setIsLoggedIn(true)
     }
     setIsLoading(false)
@@ -68,24 +71,21 @@ export default function Home() {
       return
     }
 
-    // 登录成功
     localStorage.setItem("userId", userId.toLowerCase())
+    localStorage.removeItem("loggedOut")
     setIsLoggedIn(true)
     toast.success("登录成功")
   }
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-stone-950 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-stone-900 border-stone-800">
           <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <Music className="w-12 h-12 text-purple-600" />
-            </div>
-            <CardTitle className="flex items-center justify-center text-2xl">
+            <CardTitle className="flex items-center justify-center text-2xl text-stone-100">
               wxad des
               <svg
-                className="relative bottom-0.5 -mx-2.5 size-7"
+                className="relative bottom-0.5 -mx-2.5 size-7 text-violet-400"
                 viewBox="0 0 512 512"
               >
                 <path
@@ -99,34 +99,34 @@ export default function Home() {
               </svg>
               gn karaoke
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-stone-400">
               让我们一起录一首歌吧～每个人录自己固定的部分，天使最终会合起来～
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="userId">用户ID</Label>
+                <Label htmlFor="userId" className="text-stone-300">用户ID</Label>
                 <Input
                   id="userId"
                   placeholder="输入企微全名，如：lianxunwang"
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
-                  className="text-base"
+                  className="text-base bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">密码</Label>
+                <Label htmlFor="password" className="text-stone-300">密码</Label>
                 <Input
                   id="password"
                   type="password"
                   placeholder="输入给你的密码，如：tooyangliu"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="text-base"
+                  className="text-base bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                 />
               </div>
-              <Button type="submit" className="w-full" size="lg">
+              <Button type="submit" className="w-full bg-violet-500 text-white hover:bg-violet-400 font-semibold" size="lg">
                 进入
               </Button>
             </form>
@@ -137,40 +137,39 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-black/50 backdrop-blur border-b border-purple-500/20">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h1 className="flex items-center text-base md:text-2xl font-bold text-white">
-              wxad des
-              <svg
-                className="relative bottom-0.5 -mx-1.5 md:-mx-2.5 size-5 md:size-7"
-                viewBox="0 0 512 512"
-              >
-                <path
-                  d="M256.4 32c-35.1.1-65.8 23.2-76.8 59.3-5.6 18.5-3.5 44.8-1.2 54.5 2.3 9.7 7.3 19.9 13.2 28.3 2.8 4.2 6.7 7.4 11.2 9.2.6.3 1.3.5 2 .8 3.3 1.1 6.5 2.2 10.1 3.1 11.8 3 27.1 4.7 41.1 4.8h2v-.1c14-.1 27.3-1.7 39.1-4.8 3.6-.9 6.9-2 10.2-3.1.7-.2 1.3-.5 1.9-.8 4.5-1.8 8.4-5 11.2-9.2 5.9-8.4 10.8-18.6 13.2-28.3 2.3-9.7 4.4-36-1.2-54.5-11-36-40.8-59.1-76-59.2z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M295.3 201.1c-.4 0-.7 0-1.1.1-.6.1-1.3.3-1.9.4-2 .4-4.1.8-6.1 1.2-9.2 1.5-18.9 2.3-29 2.4-10.1-.1-22.3-.9-31-2.4-2.1-.4-4.2-.8-6.2-1.2-.6-.1-1.3-.3-1.9-.4-.4-.1-.8-.1-1.1-.1-6.1 0-11 5.3-11.2 11.9.1.8.2 1.6.2 2.4 4.8 67.2 16.8 240.7 18.2 252 0 0 2.8 12.7 32.1 12.6 29.2.1 32.1-12.6 32.1-12.6 1.4-11.3 13.4-184.8 18.2-252 0-.8.1-1.6.2-2.4-.5-6.6-5.4-11.9-11.5-11.9zM266 281.7c0 6-4.5 10.9-10 10.9s-10-4.9-10-10.9V249c0-6 4.5-10.9 10-10.9s10 4.9 10 10.9v32.7z"
-                  fill="currentColor"
-                />
-              </svg>
-              gn karaoke
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">用户: {userId}</span>
+    <div className="min-h-screen bg-stone-950">
+      <header className="sticky top-0 z-50 bg-stone-950/90 backdrop-blur-sm border-b border-stone-800/60">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="flex items-center text-base md:text-xl font-bold text-stone-100">
+            wxad des
+            <svg
+              className="relative bottom-0.5 -mx-1.5 md:-mx-2.5 size-5 md:size-7 text-violet-400"
+              viewBox="0 0 512 512"
+            >
+              <path
+                d="M256.4 32c-35.1.1-65.8 23.2-76.8 59.3-5.6 18.5-3.5 44.8-1.2 54.5 2.3 9.7 7.3 19.9 13.2 28.3 2.8 4.2 6.7 7.4 11.2 9.2.6.3 1.3.5 2 .8 3.3 1.1 6.5 2.2 10.1 3.1 11.8 3 27.1 4.7 41.1 4.8h2v-.1c14-.1 27.3-1.7 39.1-4.8 3.6-.9 6.9-2 10.2-3.1.7-.2 1.3-.5 1.9-.8 4.5-1.8 8.4-5 11.2-9.2 5.9-8.4 10.8-18.6 13.2-28.3 2.3-9.7 4.4-36-1.2-54.5-11-36-40.8-59.1-76-59.2z"
+                fill="currentColor"
+              />
+              <path
+                d="M295.3 201.1c-.4 0-.7 0-1.1.1-.6.1-1.3.3-1.9.4-2 .4-4.1.8-6.1 1.2-9.2 1.5-18.9 2.3-29 2.4-10.1-.1-22.3-.9-31-2.4-2.1-.4-4.2-.8-6.2-1.2-.6-.1-1.3-.3-1.9-.4-.4-.1-.8-.1-1.1-.1-6.1 0-11 5.3-11.2 11.9.1.8.2 1.6.2 2.4 4.8 67.2 16.8 240.7 18.2 252 0 0 2.8 12.7 32.1 12.6 29.2.1 32.1-12.6 32.1-12.6 1.4-11.3 13.4-184.8 18.2-252 0-.8.1-1.6.2-2.4-.5-6.6-5.4-11.9-11.5-11.9zM266 281.7c0 6-4.5 10.9-10 10.9s-10-4.9-10-10.9V249c0-6 4.5-10.9 10-10.9s10 4.9 10 10.9v32.7z"
+                fill="currentColor"
+              />
+            </svg>
+            gn karaoke
+          </h1>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-stone-500">{userId}</span>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
                 localStorage.removeItem("userId")
+                localStorage.setItem("loggedOut", "1")
                 setIsLoggedIn(false)
                 setUserId("")
+                setPassword("")
               }}
-              className="text-gray-500 hover:text-gray-300"
+              className="text-stone-500 hover:text-stone-300"
             >
               退出
             </Button>
@@ -178,36 +177,34 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8 pb-24 overflow-hidden">
-        <div className="space-y-6">
+      <main className="max-w-3xl mx-auto px-4 py-8 pb-24 overflow-hidden">
+        <div className="space-y-8">
           <div>
-            <h2 className="text-[17px] font-bold text-white mb-2 flex items-center gap-2">
-              <Mic className="w-6 h-6" />
+            <h2 className="text-lg font-semibold text-stone-100 mb-1 flex items-center gap-2">
+              <Mic className="w-5 h-5 text-violet-400" />
               {DEFAULT_SONG.title}
             </h2>
-            <p className="text-gray-400">{DEFAULT_SONG.artist}</p>
+            <p className="text-stone-500 text-sm">{DEFAULT_SONG.artist}</p>
           </div>
-          {/* 等待 localStorage 加载完成后再渲染 ChainRecorder */}
           {!isLoading && DEFAULT_SONG.finalMixUrl && (
             <CircleKaraoke originalUrl={DEFAULT_SONG.finalMixUrl} />
           )}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-3">
-              Changelog:
+            <h3 className="text-sm font-medium text-stone-400 mb-3 uppercase tracking-wider">
+              Changelog
             </h3>
-            <div className="space-y-2 text-sm text-gray-300">
-              <div className="border-l-2 border-purple-500 pl-3 py-1">
-                <span className="font-medium text-purple-400">20251115:</span>{" "}
+            <div className="space-y-2 text-sm text-stone-400">
+              <div className="border-l-2 border-violet-500/30 pl-3 py-1">
+                <span className="font-medium text-stone-300">20251115</span>{" "}
                 kelson 由于听得难受申请重录，狂录 19
                 条后我发现完全低了几度，重新用第一条升了半个音，终于舒服了
               </div>
-              <div className="border-l-2 border-purple-500 pl-3 py-1">
-                <span className="font-medium text-purple-400">20251112:</span>{" "}
+              <div className="border-l-2 border-violet-500/30 pl-3 py-1">
+                <span className="font-medium text-stone-300">20251112</span>{" "}
                 lianxun 部分已添加
               </div>
-              <div className="border-l-2 border-purple-500 pl-3 py-1">
-                <span className="font-medium text-purple-400">20251111:</span>{" "}
+              <div className="border-l-2 border-violet-500/30 pl-3 py-1">
+                <span className="font-medium text-stone-300">20251111</span>{" "}
                 完成初版录制，让大家承受了一定痛苦
               </div>
             </div>

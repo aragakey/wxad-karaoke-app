@@ -162,9 +162,9 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
 
   if (!selectedPart) {
     return (
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-stone-800/50 border-stone-700">
         <CardContent className="pt-6 text-center">
-          <p className="text-gray-400">该歌曲没有声部信息</p>
+          <p className="text-stone-400">该歌曲没有声部信息</p>
         </CardContent>
       </Card>
     );
@@ -173,9 +173,9 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
   return (
     <div className="space-y-6">
       {/* Part Selection */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-stone-800/50 border-stone-700">
         <CardHeader>
-          <CardTitle className="text-white">选择声部</CardTitle>
+          <CardTitle className="text-stone-100">选择声部</CardTitle>
           <CardDescription>选择你要演唱的声部</CardDescription>
         </CardHeader>
         <CardContent>
@@ -195,9 +195,9 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
       </Card>
 
       {/* Part Info */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-stone-800/50 border-stone-700">
         <CardHeader>
-          <CardTitle className="text-white">{selectedPart.name}</CardTitle>
+          <CardTitle className="text-stone-100">{selectedPart.name}</CardTitle>
           <CardDescription>
             时间: {selectedPart.startTime.toFixed(1)}s - {selectedPart.endTime.toFixed(1)}s
           </CardDescription>
@@ -205,9 +205,9 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
       </Card>
 
       {/* Backing Track */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-stone-800/50 border-stone-700">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-stone-100 flex items-center gap-2">
             <Volume2 className="w-5 h-5" />
             伴奏
           </CardTitle>
@@ -220,7 +220,7 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
           />
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">音量</span>
+              <span className="text-sm text-stone-400">音量</span>
               <input
                 type="range"
                 min="0"
@@ -230,7 +230,7 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
                 onChange={(e) => setBackingVolume(parseFloat(e.target.value))}
                 className="flex-1"
               />
-              <span className="text-sm text-gray-400 w-8">{Math.round(backingVolume * 100)}%</span>
+              <span className="text-sm text-stone-400 w-8">{Math.round(backingVolume * 100)}%</span>
             </div>
           </div>
           <Button
@@ -254,9 +254,9 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
       </Card>
 
       {/* Recording Controls */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-stone-800/50 border-stone-700">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-stone-100 flex items-center gap-2">
             <Mic className="w-5 h-5" />
             录音
           </CardTitle>
@@ -283,8 +283,8 @@ export default function SongRecorder({ song, userId }: SongRecorderProps) {
           </div>
 
           {recordedAudio && (
-            <div className="space-y-2 pt-4 border-t border-slate-700">
-              <p className="text-sm text-gray-400">已录音</p>
+            <div className="space-y-2 pt-4 border-t border-stone-700">
+              <p className="text-sm text-stone-400">已录音</p>
               <audio
                 ref={recordedAudioRef}
                 src={URL.createObjectURL(recordedAudio)}

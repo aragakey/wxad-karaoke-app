@@ -52,9 +52,9 @@ export default function ClearDataPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
+    <div className="min-h-screen bg-stone-950 p-8">
       <div className="max-w-md mx-auto">
-        <Card className="border-red-500/20 bg-slate-800/50">
+        <Card className="border-red-500/20 bg-stone-900/80">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-400">
               <Trash2 className="w-5 h-5" />
@@ -71,7 +71,7 @@ export default function ClearDataPage() {
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 placeholder="输入用户 ID"
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-3 py-2 bg-stone-700 border border-stone-600 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
 
@@ -88,7 +88,7 @@ export default function ClearDataPage() {
             <Button
               onClick={handleClearData}
               disabled={isLoading || !userId.trim()}
-              className="w-full bg-red-600 hover:bg-red-700 text-white"
+              className="w-full bg-red-600 hover:bg-red-700 text-stone-100"
             >
               {isLoading ? '删除中...' : '确认删除'}
             </Button>

@@ -42,10 +42,10 @@ export default function SongList({ songs, onSelectSong, onSongUpdated }: SongLis
 
   if (songs.length === 0) {
     return (
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-stone-800/50 border-stone-700">
         <CardContent className="pt-6 text-center">
-          <Music className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-          <p className="text-gray-400">暂无歌曲，请创建一首新歌曲</p>
+          <Music className="w-12 h-12 text-stone-500 mx-auto mb-4" />
+          <p className="text-stone-400">暂无歌曲，请创建一首新歌曲</p>
         </CardContent>
       </Card>
     );
@@ -56,15 +56,15 @@ export default function SongList({ songs, onSelectSong, onSongUpdated }: SongLis
       {songs.map((song) => (
         <Card
           key={song.id}
-          className="bg-slate-800/50 border-slate-700 hover:border-purple-500/50 transition-colors cursor-pointer"
+          className="bg-stone-800/50 border-stone-700 hover:border-violet-500/50 transition-colors cursor-pointer"
           onClick={() => onSelectSong(song)}
         >
           <CardHeader>
-            <CardTitle className="text-lg text-white">{song.title}</CardTitle>
-            <CardDescription className="text-gray-400">{song.artist}</CardDescription>
+            <CardTitle className="text-lg text-stone-100">{song.title}</CardTitle>
+            <CardDescription className="text-stone-400">{song.artist}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-stone-400">
               <p>时长: {Math.floor(song.duration / 60)}:{String(song.duration % 60).padStart(2, '0')}</p>
               <p>声部: {song.parts?.length || 0} 个</p>
             </div>

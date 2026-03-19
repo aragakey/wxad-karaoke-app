@@ -165,9 +165,9 @@ export default function FullSongPlayer({ backingTrackUrl, recordings }: FullSong
   };
 
   return (
-    <Card className="bg-slate-800/50 border-slate-700">
+    <Card className="bg-stone-800/50 border-stone-700">
       <CardHeader>
-        <CardTitle className="text-white">播放全曲</CardTitle>
+        <CardTitle className="text-stone-100">播放全曲</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* 隐藏的音频元素 */}
@@ -193,8 +193,8 @@ export default function FullSongPlayer({ backingTrackUrl, recordings }: FullSong
 
         {/* 时间显示 */}
         <div className="flex items-center justify-between">
-          <span className="text-gray-400 text-sm">{formatTime(currentTime)}</span>
-          <span className="text-gray-400 text-sm">{formatTime(duration)}</span>
+          <span className="text-stone-400 text-sm">{formatTime(currentTime)}</span>
+          <span className="text-stone-400 text-sm">{formatTime(duration)}</span>
         </div>
 
         {/* 进度条 */}
@@ -235,8 +235,8 @@ export default function FullSongPlayer({ backingTrackUrl, recordings }: FullSong
 
         {/* 当前播放段落显示 */}
         {isPlaying && recordings.length > 0 && (
-          <div className="mt-4 space-y-2 border-t border-slate-700 pt-4">
-            <p className="text-sm text-gray-400">当前播放段落：</p>
+          <div className="mt-4 space-y-2 border-t border-stone-700 pt-4">
+            <p className="text-sm text-stone-400">当前播放段落：</p>
             {recordings.map((recording) => {
               const isCurrentlyPlaying = currentTime >= recording.startTime && currentTime < recording.endTime;
               return (
@@ -244,8 +244,8 @@ export default function FullSongPlayer({ backingTrackUrl, recordings }: FullSong
                   key={recording.id}
                   className={`p-2 rounded text-sm transition-colors ${
                     isCurrentlyPlaying
-                      ? 'bg-purple-600/50 text-purple-200'
-                      : 'bg-slate-900/50 text-gray-400'
+                      ? 'bg-violet-500/50 text-violet-200'
+                      : 'bg-stone-900/50 text-stone-400'
                   }`}
                 >
                   {recording.userId}: {recording.startTime.toFixed(0)}-{recording.endTime.toFixed(0)}s

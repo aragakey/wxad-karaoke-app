@@ -125,11 +125,11 @@ export default function ViewDataPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="min-h-screen bg-stone-950 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-white">录音数据管理</h1>
+          <h1 className="text-3xl font-bold text-stone-100">录音数据管理</h1>
           <Button onClick={fetchRecordings} disabled={loading} className="flex items-center gap-2">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             刷新数据
@@ -138,21 +138,21 @@ export default function ViewDataPage() {
 
         {/* 统计卡片 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-stone-900/80 border-stone-800">
             <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm flex items-center gap-2">
+              <CardTitle className="text-stone-100 text-sm flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 总录音数
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-purple-400">{recordings.length}</p>
+              <p className="text-2xl font-bold text-violet-400">{recordings.length}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-stone-900/80 border-stone-800">
             <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm flex items-center gap-2">
+              <CardTitle className="text-stone-100 text-sm flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 参与用户数
               </CardTitle>
@@ -162,9 +162,9 @@ export default function ViewDataPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-stone-900/80 border-stone-800">
             <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm flex items-center gap-2">
+              <CardTitle className="text-stone-100 text-sm flex items-center gap-2">
                 <Clock className="w-4 h-4" />
                 总时长
               </CardTitle>
@@ -176,18 +176,18 @@ export default function ViewDataPage() {
         </div>
 
         {/* 用户列表 */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-stone-900/80 border-stone-800">
           <CardHeader>
-            <CardTitle className="text-white">参与用户</CardTitle>
+            <CardTitle className="text-stone-100">参与用户</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {uniqueUsers.map(userId => {
                 const userRecordings = recordings.filter(r => r.userId === userId);
                 return (
-                  <div key={userId} className="bg-slate-900/50 px-3 py-1 rounded-full">
-                    <span className="text-white font-medium">{userId}</span>
-                    <span className="text-gray-400 ml-2">({userRecordings.length}个录音)</span>
+                  <div key={userId} className="bg-stone-800/60 px-3 py-1 rounded-full">
+                    <span className="text-stone-100 font-medium">{userId}</span>
+                    <span className="text-stone-400 ml-2">({userRecordings.length}个录音)</span>
                   </div>
                 );
               })}
@@ -196,46 +196,46 @@ export default function ViewDataPage() {
         </Card>
 
         {/* 录音列表 */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-stone-900/80 border-stone-800">
           <CardHeader>
-            <CardTitle className="text-white">所有录音</CardTitle>
+            <CardTitle className="text-stone-100">所有录音</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400 mx-auto"></div>
-                <p className="text-gray-400 mt-2">加载中...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-400 mx-auto"></div>
+                <p className="text-stone-400 mt-2">加载中...</p>
               </div>
             ) : recordings.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-400">暂无录音数据</p>
+                <p className="text-stone-400">暂无录音数据</p>
               </div>
             ) : (
               <div className="space-y-6">
                 {Object.entries(groupedRecordings).map(([userId, userRecordings]) => (
                   <div key={userId} className="space-y-3">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                      <div className="bg-violet-500 text-stone-100 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
                         {userId.charAt(0).toUpperCase()}
                       </div>
-                      <h3 className="text-white font-semibold text-lg">{userId}</h3>
-                      <span className="text-gray-400 text-sm">({userRecordings.length}个录音)</span>
+                      <h3 className="text-stone-100 font-semibold text-lg">{userId}</h3>
+                      <span className="text-stone-400 text-sm">({userRecordings.length}个录音)</span>
                     </div>
                     {userRecordings.map((recording) => {
                       createAudioElement(recording);
                       return (
                         <div
                           key={recording.id}
-                          className="bg-slate-900/50 p-4 rounded-lg flex items-center justify-between ml-4"
+                          className="bg-stone-800/60 p-4 rounded-lg flex items-center justify-between ml-4"
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-4">
-                              <div className="bg-purple-600/50 text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold">
+                              <div className="bg-violet-500/50 text-stone-100 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold">
                                 {recording.userId.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="text-white font-semibold">{recording.userId}</p>
-                                <p className="text-gray-400 text-sm">
+                                <p className="text-stone-100 font-semibold">{recording.userId}</p>
+                                <p className="text-stone-400 text-sm">
                                   {recording.startTime.toFixed(1)}s - {recording.endTime.toFixed(1)}s
                                   <span className="ml-2">
                                     ({new Date(recording.createdAt).toLocaleString()})

@@ -1022,10 +1022,10 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
       {/* 如果音频未加载完成，显示加载提示 */}
       {!isAudioLoaded && (
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-stone-900/80 border-stone-800">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4"></div>
-            <p className="text-gray-400 text-sm">正在加载音频...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mb-4"></div>
+            <p className="text-stone-400 text-sm">正在加载音频...</p>
           </CardContent>
         </Card>
       )}
@@ -1035,22 +1035,22 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
         <>
 
       {/* 总体进度 */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-stone-900/80 border-stone-800">
         <CardHeader>
-          <CardTitle className="text-white">录音进度</CardTitle>
+          <CardTitle className="text-stone-100">录音进度</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-900/50 p-4 rounded-lg">
-              <p className="text-gray-400 text-sm">已录音人数</p>
-              <p className="text-3xl font-bold text-purple-400">
+            <div className="bg-stone-800/60 p-4 rounded-lg">
+              <p className="text-stone-400 text-sm">已录音人数</p>
+              <p className="text-3xl font-bold text-violet-400">
                 {Array.from(new Set(recordings.map((r) => r.userId))).length}
               </p>
               {recordings.length > 0 && (
                 <div className="mt-2">
                   {Array.from(new Set(recordings.map((r) => r.userId))).map(
                     (uid, index, array) => (
-                      <span key={uid} className="text-xs text-gray-300">
+                      <span key={uid} className="text-xs text-stone-300">
                         {uid}
                         {index < array.length - 1 ? ", " : ""}
                       </span>
@@ -1059,8 +1059,8 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                 </div>
               )}
             </div>
-            <div className="bg-slate-900/50 p-4 rounded-lg">
-              <p className="text-gray-400 text-sm mb-2">你的部分</p>
+            <div className="bg-stone-800/60 p-4 rounded-lg">
+              <p className="text-stone-400 text-sm mb-2">你的部分</p>
               <div className="space-y-1">
                 {userSegments.map((segment, idx) => {
                   const userRecorded = recordings.some((r) => {
@@ -1089,7 +1089,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                     <p
                       key={idx}
                       className={`text-sm font-semibold ${
-                        userRecorded ? "text-green-400" : "text-gray-300"
+                        userRecorded ? "text-green-400" : "text-stone-300"
                       }`}
                     >
                       {userRecorded ? "✓" : "○"} {idx + 1}：
@@ -1145,10 +1145,10 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
           <div key={`${userId}-${segmentIndex}`} className="space-y-4">
             {/* 录音控制卡片 - 未录制或正在重新录制时显示 */}
             {(!userRecorded || isRerecording) && (
-              <Card className="bg-slate-800/50 border-slate-700">
+              <Card className="bg-stone-900/80 border-stone-800">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <span className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                  <CardTitle className="text-stone-100 flex items-center gap-2">
+                    <span className="bg-violet-500 text-stone-100 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
                       {segmentIndex + 1}
                     </span>
                     第 {segmentIndex + 1} 部分
@@ -1156,8 +1156,8 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* 歌词显示 */}
-                  <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30 p-4 rounded-lg">
-                    <p className="text-gray-400 text-sm mb-3">
+                  <div className="bg-stone-800/60 border border-stone-700 p-4 rounded-lg">
+                    <p className="text-stone-400 text-sm mb-3">
                       你要唱的歌词（
                       {commonSegments.some(
                         (cs) =>
@@ -1174,11 +1174,11 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                         segment.endLineId
                       ).map((lyric) => (
                         <div key={lyric.id} className="flex gap-2 text-sm">
-                          <span className="text-purple-400 font-semibold flex-shrink-0 w-5">
+                          <span className="text-violet-400 font-semibold flex-shrink-0 w-5">
                             {lyric.id}.
                           </span>
                           <div className="flex-1">
-                            <p className="text-white">{lyric.text}</p>
+                            <p className="text-stone-100">{lyric.text}</p>
                           </div>
                         </div>
                       ))}
@@ -1210,7 +1210,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
                       {/* 进度条 - 录音时 */}
                       {state?.isRecording && (
-                        <div className="w-full bg-slate-900 rounded-full h-3 overflow-hidden">
+                        <div className="w-full bg-stone-800 rounded-full h-3 overflow-hidden">
                           <div
                             className="bg-red-600 h-full transition-all duration-100"
                             style={{
@@ -1225,9 +1225,9 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
                       {/* 进度条 - 播放原曲时 */}
                       {(isPlayingOriginal.get(segmentIndex) || false) && (
-                        <div className="w-full bg-slate-900 rounded-full h-3 overflow-hidden">
+                        <div className="w-full bg-stone-800 rounded-full h-3 overflow-hidden">
                           <div
-                            className="bg-purple-600 h-full transition-all duration-100"
+                            className="bg-violet-500 h-full transition-all duration-100"
                             style={{
                               width: `${
                                 (((originalPlaybackTime.get(segmentIndex) ||
@@ -1243,7 +1243,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
                       {/* 时间显示 - 录音时 */}
                       {state?.isRecording && (
-                        <div className="text-center text-sm text-gray-400">
+                        <div className="text-center text-sm text-stone-400">
                           {state.recordingTime.toFixed(1)}s /{" "}
                           {(endTime - startTime).toFixed(0)}s
                         </div>
@@ -1251,7 +1251,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
                       {/* 时间显示 - 播放原曲时 */}
                       {(isPlayingOriginal.get(segmentIndex) || false) && (
-                        <div className="text-center text-sm text-gray-400">
+                        <div className="text-center text-sm text-stone-400">
                           {(
                             (originalPlaybackTime.get(segmentIndex) || 0) -
                             startTime
@@ -1278,7 +1278,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                               <Button
                                 onClick={() => togglePlayOriginal(segmentIndex)}
                                 variant="outline"
-                                className="flex items-center justify-center gap-2 border-purple-500 text-purple-400 hover:bg-purple-500/10"
+                                className="flex items-center justify-center gap-2 border-violet-500/50 text-violet-400 hover:bg-violet-500/10"
                               >
                                 <Headphones className="w-4 h-4" />
                                 {isPlayingOriginal.get(segmentIndex)
@@ -1340,11 +1340,11 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
             {/* 已录制时显示 - 只显示简单标题卡片（非重新录制状态） */}
             {userRecorded && !isRerecording && (
-              <Card className="bg-slate-800/50 border-slate-700">
+              <Card className="bg-stone-900/80 border-stone-800">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center justify-between">
+                  <CardTitle className="text-stone-100 flex items-center justify-between">
                     <span className="flex items-center gap-2">
-                      <span className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                      <span className="bg-violet-500 text-stone-100 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
                         {segmentIndex + 1}
                       </span>
                       第 {segmentIndex + 1} 部分
@@ -1359,9 +1359,9 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
 
             {/* 该部分的已录音列表 */}
             {segmentRecordings.length > 0 && (
-              <Card className="bg-slate-800/50 border-slate-700">
+              <Card className="bg-stone-900/80 border-stone-800">
                 <CardHeader>
-                  <CardTitle className="text-white text-sm">
+                  <CardTitle className="text-stone-100 text-sm">
                     第 {segmentIndex + 1} 部分的录音
                   </CardTitle>
                 </CardHeader>
@@ -1383,18 +1383,18 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                       return (
                         <div
                           key={recording.id}
-                          className="bg-slate-900/50 p-3 rounded-lg space-y-2"
+                          className="bg-stone-800/60 p-3 rounded-lg space-y-2"
                         >
                           <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-3">
-                              <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                              <div className="bg-violet-500 text-stone-100 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold flex-shrink-0">
                                 {index + 1}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-white font-semibold">
+                                <p className="text-stone-100 font-semibold">
                                   {recording.userId}
                                 </p>
-                                <p className="text-gray-400 text-sm">
+                                <p className="text-stone-400 text-sm">
                                   {recording.startTime.toFixed(0)}-
                                   {recording.endTime.toFixed(0)}s
                                 </p>
@@ -1477,13 +1477,13 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                           </div>
                           {playingRecordingId === recording.id && (
                             <div className="space-y-1">
-                              <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                              <div className="w-full bg-stone-700 rounded-full h-2 overflow-hidden">
                                 <div
-                                  className="bg-purple-600 h-full transition-all duration-100"
+                                  className="bg-violet-500 h-full transition-all duration-100"
                                   style={{ width: `${progress}%` }}
                                 />
                               </div>
-                              <div className="flex justify-between text-xs text-gray-400">
+                              <div className="flex justify-between text-xs text-stone-400">
                                 <span>{currentTime.toFixed(1)}s</span>
                                 <span>{displayDuration.toFixed(0)}s</span>
                               </div>
@@ -1491,7 +1491,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                           )}
                           {playingWithBackingId === recording.id && (
                             <div className="space-y-1">
-                              <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                              <div className="w-full bg-stone-700 rounded-full h-2 overflow-hidden">
                                 <div
                                   className="bg-green-600 h-full transition-all duration-100"
                                   style={{
@@ -1505,7 +1505,7 @@ export default function ChainRecorder({ song, userId }: ChainRecorderProps) {
                                   }}
                                 />
                               </div>
-                              <div className="flex justify-between text-xs text-gray-400">
+                              <div className="flex justify-between text-xs text-stone-400">
                                 <span>
                                   {(
                                     backingPlaybackTime - recording.startTime
