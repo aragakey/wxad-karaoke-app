@@ -59,6 +59,80 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
   // 显示歌词时也要加上偏移量
   const currentLyric = getCurrentLyric(currentTime + AUDIO_TIME_OFFSET)
 
+  const postMessageToParent = (type: string, payload: Record<string, unknown>) => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ source: "karaoke", type, ...payload }, "*")
+    }
+  }
+
+  // 向父窗口广播当前播放状态
+  const lastBroadcastRef = useRef<string>("")
+  useEffect(() => {
+    const singers = currentSingers.map((id) => {
+      const user = USER_ASSIGNMENTS.find((u) => u.userId === id)
+      return user ? { userId: user.userId, nickname: user.nickname, avatar: user.avatar } : { userId: id, nickname: id, avatar: "" }
+    })
+
+    const payload = {
+      currentTime,
+      duration,
+      isPlaying,
+      lyric: currentLyric ? { id: currentLyric.id, time: currentLyric.time, text: currentLyric.text } : null,
+      singers,
+      progress: duration > 0 ? currentTime / duration : 0,
+    }
+
+    const key = `${currentLyric?.id}-${Math.floor(currentTime * 2)}`
+    if (key !== lastBroadcastRef.current) {
+      lastBroadcastRef.current = key
+      postMessageToParent("timeupdate", payload)
+    }
+  }, [currentTime, currentLyric, currentSingers, duration, isPlaying])
+
+  // 接收父窗口的控制指令
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (!e.data || e.data.source !== "karaoke-host") return
+      const audio = audioRef.current
+      if (!audio) return
+
+      switch (e.data.type) {
+        case "play":
+          if (!hasUserSeeked && audio.currentTime < 1) {
+            audio.currentTime = DEFAULT_START_TIME
+          }
+          audio.play()
+          setIsPlaying(true)
+          break
+        case "pause":
+          audio.pause()
+          setIsPlaying(false)
+          break
+        case "seek":
+          if (typeof e.data.time === "number") {
+            audio.currentTime = e.data.time
+            setCurrentTime(e.data.time)
+            setHasUserSeeked(true)
+          }
+          break
+        case "toggle":
+          if (isPlaying) {
+            audio.pause()
+            setIsPlaying(false)
+          } else {
+            if (!hasUserSeeked && audio.currentTime < 1) {
+              audio.currentTime = DEFAULT_START_TIME
+            }
+            audio.play()
+            setIsPlaying(true)
+          }
+          break
+      }
+    }
+    window.addEventListener("message", handler)
+    return () => window.removeEventListener("message", handler)
+  }, [isPlaying, hasUserSeeked])
+
   // 初始化音频
   useEffect(() => {
     const audio = new Audio(originalUrl)
@@ -77,6 +151,11 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
       setIsPlaying(false)
       setCurrentTime(0)
       audio.currentTime = 0
+      postMessageToParent("ended", {})
+    })
+
+    audio.addEventListener("loadedmetadata", () => {
+      postMessageToParent("ready", { duration: audio.duration })
     })
 
     return () => {
@@ -90,12 +169,13 @@ export default function CircleKaraoke({ originalUrl }: CircleKaraokeProps) {
 
     if (isPlaying) {
       audioRef.current.pause()
+      postMessageToParent("pause", { currentTime })
     } else {
-      // 如果用户没有手动拖动过进度条，且当前时间接近 0，则从 41 秒开始
       if (!hasUserSeeked && audioRef.current.currentTime < 1) {
         audioRef.current.currentTime = DEFAULT_START_TIME
       }
       audioRef.current.play()
+      postMessageToParent("play", { currentTime })
     }
     setIsPlaying(!isPlaying)
   }
